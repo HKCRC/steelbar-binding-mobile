@@ -1,0 +1,43 @@
+import { useState } from 'react';
+import { Text, View } from 'react-native';
+import { RadioButton } from 'react-native-paper';
+
+const jumpCountList = [
+  {
+    value: '1',
+    label: '1',
+  },
+  {
+    value: '2',
+    label: '2',
+  },
+  {
+    value: '3',
+    label: '3',
+  },
+  {
+    value: '4',
+    label: '4',
+  },
+];
+
+export const SelectJumpCount = () => {
+  const [checked, setChecked] = useState('1');
+  return (
+    <View className="flex flex-col items-start justify-center gap-y-2">
+      <Text className="text-center text-lg font-bold">当前跳扎跳数</Text>
+      <View className="flex flex-col items-center justify-center">
+        {jumpCountList.map((item) => (
+          <View key={item.value} className="flex flex-row items-center justify-center gap-x-1">
+            <RadioButton
+              value={item.value}
+              onPress={() => setChecked(item.value)}
+              status={checked === item.value ? 'checked' : 'unchecked'}
+            />
+            <Text className="text-lg">{item.label}</Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+};
