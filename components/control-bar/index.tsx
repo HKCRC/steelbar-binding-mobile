@@ -1,11 +1,10 @@
 import { Image } from 'expo-image';
 import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
-import { Button, Card, Divider, Icon, Menu, SegmentedButtons } from 'react-native-paper';
+import { Card, Icon, SegmentedButtons } from 'react-native-paper';
 
 import { ControlAutoSelectDirection } from '../control-auto-select-direction';
 import { ControlExtraModule } from '../control-extra-module';
-import { SelectJumpCount } from '../select-jump-count';
 
 export const ControlBar = () => {
   const [action, setAction] = useState('stop');
@@ -15,9 +14,9 @@ export const ControlBar = () => {
   return (
     <View className="w-full">
       <Card className="relative mx-auto w-[95%] pb-8">
-        <View className="flex w-full flex-col px-5 pb-3 pt-4">
+        <View className="flex w-full flex-col px-5 pb-8 pt-4">
           <View className="mb-5 flex w-full flex-col items-center justify-center">
-            <View className="mb-2 flex flex-row items-center justify-center">
+            <View className="mb-2 mt-3 flex flex-row items-center justify-center">
               <Icon source="robot-happy-outline" size={22} />
               <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">机器人操作</Text>
             </View>
@@ -53,6 +52,15 @@ export const ControlBar = () => {
                     onPress: () => setJumpBindingMenuShow(true),
                     style: {
                       backgroundColor: action === 'auto' ? '#012641' : 'transparent',
+                    },
+                  },
+                  {
+                    value: 'test',
+                    label: '试扎',
+                    icon: 'debug-step-into',
+                    checkedColor: '#ffffff',
+                    style: {
+                      backgroundColor: action === 'test' ? '#012641' : 'transparent',
                     },
                   },
                 ]}

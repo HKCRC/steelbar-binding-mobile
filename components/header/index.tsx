@@ -1,10 +1,10 @@
 import { Image } from 'expo-image';
+import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
 import { router } from 'expo-router';
 import { BatteryFull, Gear, WifiHigh } from 'phosphor-react-native';
 import { TouchableOpacity, View } from 'react-native';
 import { Button } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { startActivityAsync, ActivityAction } from 'expo-intent-launcher';
 
 export const Header = () => {
   const { top } = useSafeAreaInsets();

@@ -25,11 +25,11 @@ export const ControlAutoSelectDirection = () => {
         <View className="flex">
           {isPlaying ? (
             <View className="flex h-[120px] w-[120px] flex-row items-center justify-center rounded-full bg-[#012641] p-5">
-              <Text className="ml-2 text-center text-2xl font-normal text-white">暂停</Text>
+              <Text className="text-center text-2xl font-semibold text-white">暂停</Text>
             </View>
           ) : (
             <View className="flex h-[120px] w-[120px] flex-row items-center justify-center rounded-full bg-[#012641] p-5">
-              <Text className="ml-2 text-center text-2xl font-normal text-white">开始</Text>
+              <Text className="text-center text-2xl font-semibold text-white">开始</Text>
             </View>
           )}
         </View>
