@@ -1,9 +1,12 @@
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Dimensions, Text, View } from 'react-native';
 import { Button, Card, DataTable, Icon } from 'react-native-paper';
 
 export const ErrorData = () => {
+  const { height } = Dimensions.get('window');
+  const targetHeight = height * 0.45;
+  const rowCount = Math.floor(targetHeight / 100);
   const [items] = useState([
     {
       key: 1,
@@ -32,7 +35,7 @@ export const ErrorData = () => {
   ]);
 
   const openErrorDetailPage = () => {
-    router.push('/(error)');
+    router.push('/(error_info)');
   };
 
   return (
@@ -40,7 +43,7 @@ export const ErrorData = () => {
       <View className="w-full px-5 pb-3 pt-4">
         <View className="mb-2 mt-3  flex flex-row items-center justify-center">
           <Icon source="alert-circle-outline" size={22} />
-          <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">故障监控</Text>
+          <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">故障监控{height}</Text>
         </View>
         <DataTable>
           <DataTable.Header>
@@ -49,7 +52,7 @@ export const ErrorData = () => {
             <DataTable.Title numeric>故障名称</DataTable.Title>
           </DataTable.Header>
 
-          {items.map((item) => (
+          {items.slice(0, rowCount).map((item) => (
             <DataTable.Row key={item.key}>
               <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
                 {item.index}
@@ -69,7 +72,7 @@ export const ErrorData = () => {
             icon="eye"
             style={{ right: -10, marginTop: 10 }}
             mode="text"
-            onPress={openErrorDetailPage}>
+            onPress={() => openErrorDetailPage()}>
             查看详情
           </Button>
         </View>

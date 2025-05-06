@@ -3,6 +3,11 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { DefaultTheme, PaperProvider } from 'react-native-paper';
 
+import GlobalActivityIndicatorComponent from '@/components/activity-indicator-global';
+import { Bootstrap } from '@/components/bootstrap';
+import GlobalDialogComponent from '@/components/global-dialog';
+import GlobalSnackbarComponent from '@/components/snackbar-global';
+
 const theme = {
   ...DefaultTheme,
   colors: {
@@ -15,13 +20,15 @@ const theme = {
 export default function RootLayout() {
   return (
     <PaperProvider theme={theme}>
-      <>
-        <Stack>
-          <Stack.Screen name="(root)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="light" backgroundColor="#000" />
-      </>
+      <Bootstrap />
+      <Stack>
+        <Stack.Screen name="(root)" options={{ headerShown: false }} />
+        <Stack.Screen name="+not-found" />
+      </Stack>
+      <StatusBar style="light" backgroundColor="#000" />
+      <GlobalDialogComponent />
+      <GlobalSnackbarComponent />
+      <GlobalActivityIndicatorComponent />
     </PaperProvider>
   );
 }

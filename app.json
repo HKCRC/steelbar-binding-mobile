@@ -1,9 +1,9 @@
 {
   "expo": {
     "name": "钢筋绑扎机器人",
-    "slug": "钢筋绑扎机器人",
+    "slug": "tyings",
     "version": "1.0.0",
-    "scheme": "钢筋绑扎机器人",
+    "scheme": "tyings",
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -17,6 +17,28 @@
         {
           "initialOrientation": "LANDSCAPE",
           "orientation": "landscape"
+        }
+      ],
+      [
+        "expo-sqlite",
+        {
+          "enableFTS": true,
+          "useSQLCipher": true,
+          "android": {
+            "enableFTS": false,
+            "useSQLCipher": false
+          },
+          "ios": {
+            "customBuildFlags": [
+              "-DSQLITE_ENABLE_DBSTAT_VTAB=1 -DSQLITE_ENABLE_SNAPSHOT=1"
+            ]
+          }
+        }
+      ],
+      [
+        "react-native-wifi-reborn",
+        {
+          "fineLocationPermission": false
         }
       ]
     ],
@@ -32,12 +54,23 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ryderdu"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.ACCESS_FINE_LOCATION"
+      ],
+      "package": "com.ryderdu"
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "578f6a09-06f9-40d1-b001-bfa9e813d0b4"
       }
     }
   }

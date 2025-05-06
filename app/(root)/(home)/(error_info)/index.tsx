@@ -1,12 +1,11 @@
 import { Header } from '@/components/header';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, Card, DataTable, Icon } from 'react-native-paper';
 
 export default function Error() {
-  const [page, setPage] = useState<number>(0);
   const [numberOfItemsPerPageList] = useState([2, 3, 4]);
   const [itemsPerPage, onItemsPerPageChange] = useState(numberOfItemsPerPageList[0]);
 
@@ -83,13 +82,6 @@ export default function Error() {
     //   name: '钢筋不足',
     // },
   ]);
-
-  const from = page * itemsPerPage;
-  const to = Math.min((page + 1) * itemsPerPage, items.length);
-
-  useEffect(() => {
-    setPage(0);
-  }, [itemsPerPage]);
 
   return (
     <View className="flex w-full">

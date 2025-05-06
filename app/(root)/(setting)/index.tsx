@@ -1,17 +1,22 @@
-import { Header } from '@/components/header';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button, Card, Icon, TextInput } from 'react-native-paper';
-export default function Setting() {
-  const [text, setText] = useState('138');
 
+import { Header } from '@/components/header';
+import { storage_config } from '@/constants';
+import useStore from '@/store';
+
+export default function Setting() {
+  const { canLoginInfo } = useStore((state) => state);
+  const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
   const goback = () => {
     router.back();
   };
 
-  const logout = () => {
+  const logout = async () => {
+    await userInfo.removeItem();
     router.dismissAll();
     router.replace('/(root)/(login)');
   };
@@ -43,43 +48,38 @@ export default function Setting() {
             <View className="gap-5">
               <TextInput
                 label="用户名"
-                value={text}
+                value={canLoginInfo.name}
                 disabled
                 style={{ backgroundColor: '#01264142' }}
                 keyboardType="numeric"
-                onChangeText={(text) => setText(text)}
               />
 
               <TextInput
                 label="用户ID"
-                value={text}
+                value={canLoginInfo.id.toString()}
                 disabled
                 style={{ backgroundColor: '#01264142' }}
-                onChangeText={(text) => setText(text)}
               />
 
               <TextInput
                 label="公司地址"
-                value={text}
+                value={canLoginInfo.position}
                 disabled
                 style={{ backgroundColor: '#01264142' }}
-                onChangeText={(text) => setText(text)}
               />
 
               <TextInput
                 label="公司名称"
-                value={text}
+                value={canLoginInfo.company}
                 disabled
                 style={{ backgroundColor: '#01264142' }}
-                onChangeText={(text) => setText(text)}
               />
 
               <TextInput
                 label="联系电话"
-                value={text}
+                value={canLoginInfo.number}
                 disabled
                 style={{ backgroundColor: '#01264142' }}
-                onChangeText={(text) => setText(text)}
               />
             </View>
 

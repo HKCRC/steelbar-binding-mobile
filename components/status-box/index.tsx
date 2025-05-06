@@ -1,12 +1,12 @@
 import { Image } from 'expo-image';
 import { useMemo, useState } from 'react';
-import { useWindowDimensions, View } from 'react-native';
+import { Dimensions, View } from 'react-native';
 import { Button } from 'react-native-paper';
 
 import { ParamsSettingModal } from '../params-setting-modal';
 
 export const StatusBox = () => {
-  const { width } = useWindowDimensions();
+  const { width } = Dimensions.get('screen');
   const imageSize = useMemo(() => Math.floor(width / 5), [width]);
   const [visible, setVisible] = useState(false);
 
@@ -14,8 +14,9 @@ export const StatusBox = () => {
   const hideModal = () => setVisible(false);
 
   return (
-    <View className="flex-col">
+    <View className="w-[100%] flex-col items-center justify-start">
       <ParamsSettingModal visible={visible} onDismiss={hideModal} />
+
       <Image
         placeholder={{ blurhash: 'L3C00000' }}
         contentFit="contain"
@@ -31,7 +32,7 @@ export const StatusBox = () => {
         source={require('@/assets/images/p2.png')}
       />
 
-      <Button icon="cog" mode="contained" onPress={openSettingModal}>
+      <Button icon="cog" mode="contained" style={{ width: '80%' }} onPress={openSettingModal}>
         参数设置
       </Button>
     </View>

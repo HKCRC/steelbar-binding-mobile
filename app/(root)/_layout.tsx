@@ -8,11 +8,10 @@ export default function RootLayout() {
   }, []);
 
   return (
-    <Stack>
+    <Stack initialRouteName="(home)">
       <Stack.Screen name="(home)" options={{ title: 'Home', headerShown: false }} />
       <Stack.Screen name="(login)" options={{ title: 'Login', headerShown: false }} />
       <Stack.Screen name="(setting)" options={{ title: 'Settings', headerShown: false }} />
-      <Stack.Screen name="(error)" options={{ title: 'Error', headerShown: false }} />
     </Stack>
   );
 }

@@ -1,3 +1,4 @@
+import useStore from '@/store';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { RadioButton } from 'react-native-paper';
@@ -23,15 +24,24 @@ const jumpCountList = [
 
 export const SelectJumpCount = () => {
   const [checked, setChecked] = useState('1');
+  const { setRobotStatus } = useStore((state) => state);
+
+  const handleChange = (value: string) => {
+    setChecked(value);
+    setRobotStatus({
+      skip_binding_count: parseInt(value, 10),
+    });
+  };
+
   return (
     <View className="flex flex-col items-start justify-center gap-y-2">
       <Text className="text-center text-lg font-bold">当前跳扎跳数</Text>
       <View className="flex flex-col items-center justify-center">
         {jumpCountList.map((item) => (
           <View key={item.value} className="flex flex-row items-center justify-center gap-x-1">
-            <RadioButton
+            <RadioButton.Android
               value={item.value}
-              onPress={() => setChecked(item.value)}
+              onPress={() => handleChange(item.value)}
               status={checked === item.value ? 'checked' : 'unchecked'}
             />
             <Text className="text-lg">{item.label}</Text>

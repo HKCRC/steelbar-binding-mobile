@@ -1,0 +1,17 @@
+export enum eventBusKey {
+  LanguageEvent = 'LanguageEvent',
+  WifiEvent = 'WifiEvent',
+  StopEvent = 'StopEvent',
+  ElectricEvent = 'ElectricEvent',
+  StatusEvent = 'StatusEvent',
+  IdEvent = 'IdEvent',
+  OrbitEvent = 'OrbitEvent',
+  OrbitChangeEvent = 'OrbitChangeEvent',
+  NodeEvent = 'NodeEvent',
+  NodeChangeEvent = 'NodeChangeEvent',
+  OverageEvent = 'OverageEvent',
+  ChangeEvent = 'ChangeEvent',
+  RebootEvent = 'RebootEvent',
+  DownEvent = 'DownEvent',
+  ErrorEvent = 'ErrorEvent',
+}

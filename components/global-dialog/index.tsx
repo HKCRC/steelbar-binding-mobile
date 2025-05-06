@@ -1,0 +1,65 @@
+import { createRef, forwardRef, useImperativeHandle, useState } from 'react';
+import { Button, Dialog, Portal, Text } from 'react-native-paper';
+
+type GlobalDialogConfig = {
+  title: string;
+  content: string;
+  callback: () => void;
+};
+
+export const GlobalDialogManager: React.RefObject<{
+  show: (config: GlobalDialogConfig) => void;
+  hide: () => void;
+} | null> = createRef();
+
+const GlobalDialog = forwardRef((_: any, ref: any) => {
+  const [visible, setVisible] = useState(false);
+  const [config, setConfig] = useState<GlobalDialogConfig>({
+    title: '',
+    content: '',
+    callback: () => {},
+  });
+
+  const showDialog = (config: GlobalDialogConfig) => {
+    setConfig(config);
+    setVisible(true);
+  };
+
+  const hideDialog = () => setVisible(false);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      show: showDialog,
+      hide: hideDialog,
+    }),
+    [showDialog, hideDialog]
+  );
+
+  const checkedCallback = () => {
+    hideDialog();
+    config?.callback();
+  };
+
+  return (
+    <Portal>
+      <Dialog
+        style={{ width: '50%', left: '50%', transform: [{ translateX: '-50%' }] }}
+        visible={visible}
+        onDismiss={hideDialog}>
+        <Dialog.Title>{config.title}</Dialog.Title>
+        <Dialog.Content>
+          <Text>{config.content}</Text>
+        </Dialog.Content>
+        <Dialog.Actions>
+          <Button onPress={hideDialog}>取消</Button>
+          <Button onPress={checkedCallback}>确定</Button>
+        </Dialog.Actions>
+      </Dialog>
+    </Portal>
+  );
+});
+
+const GlobalDialogComponent = () => <GlobalDialog ref={GlobalDialogManager} />;
+
+export default GlobalDialogComponent;
