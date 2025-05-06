@@ -10,7 +10,7 @@ import useStore from '@/store';
 import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
 
 export const ControlBar = () => {
-  const { setRobotStatus } = useStore((state) => state);
+  const { setRobotStatus, robotStatus } = useStore((state) => state);
   const [action, setAction] = useState(ROBOT_CURRENT_MODE.LOCKED);
   const [bindMode, setBindMode] = useState(ROBOT_WORK_MODE.WITHOUT_BINDING);
 
@@ -73,53 +73,54 @@ export const ControlBar = () => {
                 },
               ]}
             />
-
-            <SegmentedButtons
-              value={bindMode}
-              density="medium"
-              onValueChange={(value) => {
-                setBindMode(value as ROBOT_WORK_MODE);
-                setRobotStatus({
-                  currentBindingMode: value as ROBOT_WORK_MODE,
-                });
-              }}
-              buttons={[
-                {
-                  value: ROBOT_WORK_MODE.WITHOUT_BINDING,
-                  label: '不扎',
-                  icon: 'not-equal-variant',
-                  checkedColor: '#ffffff',
-                  style: {
-                    backgroundColor:
-                      bindMode === ROBOT_WORK_MODE.WITHOUT_BINDING ? '#012641' : 'transparent',
+            {robotStatus.currentMode === ROBOT_CURRENT_MODE.AUTO ? (
+              <SegmentedButtons
+                value={bindMode}
+                density="medium"
+                onValueChange={(value) => {
+                  setBindMode(value as ROBOT_WORK_MODE);
+                  setRobotStatus({
+                    currentBindingMode: value as ROBOT_WORK_MODE,
+                  });
+                }}
+                buttons={[
+                  {
+                    value: ROBOT_WORK_MODE.WITHOUT_BINDING,
+                    label: '不扎',
+                    icon: 'not-equal-variant',
+                    checkedColor: '#ffffff',
+                    style: {
+                      backgroundColor:
+                        bindMode === ROBOT_WORK_MODE.WITHOUT_BINDING ? '#012641' : 'transparent',
+                    },
                   },
-                },
-                {
-                  value: ROBOT_WORK_MODE.FULL_BINDING,
-                  label: '满扎',
-                  icon: 'transit-connection',
-                  checkedColor: '#ffffff',
-                  style: {
-                    backgroundColor:
-                      bindMode === ROBOT_WORK_MODE.FULL_BINDING ? '#012641' : 'transparent',
+                  {
+                    value: ROBOT_WORK_MODE.FULL_BINDING,
+                    label: '满扎',
+                    icon: 'transit-connection',
+                    checkedColor: '#ffffff',
+                    style: {
+                      backgroundColor:
+                        bindMode === ROBOT_WORK_MODE.FULL_BINDING ? '#012641' : 'transparent',
+                    },
                   },
-                },
-                {
-                  value: ROBOT_WORK_MODE.SKIP_BINDING,
-                  label: '跳扎',
-                  icon: 'transit-skip',
-                  checkedColor: '#ffffff',
-                  style: {
-                    backgroundColor:
-                      bindMode === ROBOT_WORK_MODE.SKIP_BINDING ? '#012641' : 'transparent',
+                  {
+                    value: ROBOT_WORK_MODE.SKIP_BINDING,
+                    label: '跳扎',
+                    icon: 'transit-skip',
+                    checkedColor: '#ffffff',
+                    style: {
+                      backgroundColor:
+                        bindMode === ROBOT_WORK_MODE.SKIP_BINDING ? '#012641' : 'transparent',
+                    },
                   },
-                },
-              ]}
-            />
+                ]}
+              />
+            ) : null}
           </View>
 
           {action === ROBOT_CURRENT_MODE.MANUAL ? (
-            <View className="relative mt-1.5 flex h-[150px] w-[150px] flex-row items-center justify-center gap-x-5">
+            <View className="relative mt-1.5 flex h-[180px] w-[150px] flex-row items-center justify-center gap-x-5">
               <View className="absolute left-0 top-0 h-full w-full flex-col items-center justify-center gap-y-10">
                 <TouchableOpacity
                   onPressIn={() => console.log('Pressed')}

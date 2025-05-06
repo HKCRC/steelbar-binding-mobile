@@ -13,7 +13,7 @@ import useStore from '@/store';
 
 export const Header = () => {
   const { top } = useSafeAreaInsets();
-  const { setRobotStatus } = useStore((state) => state);
+  const { setRobotStatus, robotStatus } = useStore((state) => state);
   const [wifiChooseListVisible, setWifiChooseListVisible] = useState(false);
   const [wifiPermission, setWifiPermission] = useState(false);
   const [wifiList, setWifiList] = useState<WifiEntry[]>([]);
@@ -234,7 +234,11 @@ export const Header = () => {
 
         <BatteryFull size={32} weight="bold" />
 
-        <Button icon="pause" mode="contained" onPress={handleForcePause}>
+        <Button
+          icon={robotStatus.robotDangerStatus ? 'pause' : 'play'}
+          mode="contained"
+          buttonColor="red"
+          onPress={handleForcePause}>
           软急停
         </Button>
       </View>
