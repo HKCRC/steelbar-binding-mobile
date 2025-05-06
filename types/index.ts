@@ -9,7 +9,6 @@ export enum ROBOT_CURRENT_MODE {
   'LOCKED' = '1',
   'MANUAL' = '2',
   'AUTO' = '3',
-  'TEST' = '4',
 }
 
 export enum ROBOT_WORK_MODE {

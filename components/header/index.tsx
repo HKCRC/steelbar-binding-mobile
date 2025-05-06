@@ -10,6 +10,7 @@ import WifiManager, { WifiEntry } from 'react-native-wifi-reborn';
 import { GlobalSnackbarManager } from '../snackbar-global';
 
 import useStore from '@/store';
+import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
 
 export const Header = () => {
   const { top } = useSafeAreaInsets();
@@ -97,7 +98,11 @@ export const Header = () => {
 
   // 强制暂停
   const handleForcePause = () => {
-    setRobotStatus({ robotDangerStatus: true });
+    setRobotStatus({
+      robotDangerStatus: true,
+      currentMode: ROBOT_CURRENT_MODE.LOCKED,
+      currentBindingMode: ROBOT_WORK_MODE.WITHOUT_BINDING,
+    });
   };
 
   // 连接WiFi
@@ -199,6 +204,7 @@ export const Header = () => {
 
         <Dialog
           visible={wifiPasswordDialogVisible}
+          style={{ width: '40%', left: '0%', right: '0%', marginHorizontal: 'auto' }}
           onDismiss={() => setWifiPasswordDialogVisible(false)}>
           <Dialog.Title>请输入{currentSelectedWifi.current}的密码</Dialog.Title>
           <Dialog.Content>

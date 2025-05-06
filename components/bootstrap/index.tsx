@@ -4,22 +4,42 @@ import { useEffect } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 
 import { GlobalActivityIndicatorManager } from '../activity-indicator-global';
+import { GlobalSnackbarManager } from '../snackbar-global';
+import { EventHandler } from './event';
 
-import { storage_config } from '@/constants';
+import { GlobalConst, storage_config } from '@/constants';
+import { Command } from '@/constants/command';
+import { eventBusKey } from '@/constants/event';
 import database from '@/model/manager';
 import useStore from '@/store';
 import { ConnectDeviceInfo } from '@/utils/connectDeviceInfo';
+import eventBus from '@/utils/eventBus';
 import { delayed, globalGetConnect } from '@/utils/helper';
+import { SocketManage } from '@/utils/socketManage';
 
 // 这个组件主要做一些初始化功能
 export const Bootstrap = () => {
   const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
-  const { setCanLoginInfo, canLoginInfo } = useStore((state) => state);
+  const { setCanLoginInfo, canLoginInfo, robotStatus } = useStore((state) => state);
 
   useEffect(() => {
     databaseInit();
     checkLogin();
-    globalGetConnect();
+    setTimeout(() => {
+      globalGetConnect();
+    }, 50);
+  }, []);
+
+  useEffect(() => {
+    eventBus.subscribe(eventBusKey.SendCmdEvent, (cmd: Command) => {
+      sendCmd(cmd);
+    });
+
+    return () => {
+      eventBus.unsubscribe(eventBusKey.SendCmdEvent, (cmd: Command) => {
+        sendCmd(cmd);
+      });
+    };
   }, []);
 
   useEffect(() => {
@@ -63,6 +83,24 @@ export const Bootstrap = () => {
     }
   };
 
+  const sendCmd = (cmd: Command) => {
+    if (robotStatus.robotDangerStatus) {
+      GlobalSnackbarManager.current?.show({
+        content: '机器人处于软急停状态，无法发送命令',
+      });
+      return;
+    }
+    const socket = SocketManage.getInstance();
+
+    if (socket.isConnected()) {
+      socket.writeData(`${GlobalConst.forwardCmd}${cmd}`);
+    } else {
+      GlobalSnackbarManager.current?.show({
+        content: '机器人未连接，无法发送命令',
+      });
+    }
+  };
+
   const checkLogin = async () => {
     try {
       const getUserInfoFromStorage = await userInfo.getItem();
@@ -94,5 +132,5 @@ export const Bootstrap = () => {
     }
   };
 
-  return null;
+  return <EventHandler />;
 };

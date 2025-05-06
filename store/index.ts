@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { ChangeState, DownState, RebootState, workParamsRange } from '@/constants';
 import { DIRECTION, ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
 
 interface State {
@@ -19,8 +20,12 @@ interface State {
     currentBindingMode: ROBOT_WORK_MODE;
     isWorking: boolean;
     skip_binding_count: number;
+    downState: DownState;
+    rebootState: RebootState;
+    changeState: ChangeState;
+    overage: number;
   };
-  setRobotStatus: (newInfo: { [key: string]: any }) => void;
+  setRobotStatus: (newInfo: Partial<State['robotStatus']>) => void;
   userInfo: {
     username: string;
     password: string;
@@ -36,24 +41,51 @@ interface State {
     ultrasonic_waves: boolean;
     prevent_falling_laser: boolean;
     auto_find_point: boolean;
+    inputOrbitMax: number;
+    inputNodeMax: number;
   };
-  setWorkParams: (newInfo: { [key: string]: any }) => void;
+  setWorkParams: (newInfo: Partial<State['workParams']>) => void;
+  errorGroup: {
+    time: string;
+    errorId: number;
+  }[];
+  setErrorGroup: (newInfo: Partial<State['errorGroup']>) => void;
 }
+
+export const initWorkParams = {
+  track_laser_range: '104.5', // 变轨激光初始值
+  node_laser_range: '74.5', // 节点激光初始值
+  upper_layer_diameter: '20', // 上层钢筋直径初始值
+  lower_layer_diameter: '22', // 下层钢筋直径初始值
+  lower_steel_bar_length: '22', // 下层钢筋长度初始值
+  binding_timeout: '20', // 绑扎超时时间初始值
+  ultrasonic_waves: true, // 超声波初始值
+  prevent_falling_laser: true, // 防坠落激光初始值
+  auto_find_point: false, // 自动寻点开关初始值
+  inputOrbitMax: workParamsRange.orbitMax, // 变轨激光最大值
+  inputNodeMax: workParamsRange.nodeMax, // 节点激光最大值
+};
 
 export const useStore = create<State>((set) => ({
   robotStatus: {
-    robotDangerStatus: false,
+    overage: 0, // 卷丝余量
+    robotDangerStatus: false, // 软急停状态
     direction: new Map([
+      // 前进方向
       [DIRECTION.UP, false],
       [DIRECTION.DOWN, false],
       [DIRECTION.LEFT, false],
       [DIRECTION.RIGHT, false],
     ]),
-    currentMode: ROBOT_CURRENT_MODE.LOCKED,
-    currentBindingMode: ROBOT_WORK_MODE.WITHOUT_BINDING,
-    isWorking: false,
-    skip_binding_count: 1,
+    currentMode: ROBOT_CURRENT_MODE.LOCKED, // 当前模式
+    currentBindingMode: ROBOT_WORK_MODE.WITHOUT_BINDING, // 当前绑扎模式
+    isWorking: false, // 机器人是否在工作
+    skip_binding_count: 1, // 默认跳扎数
+    downState: DownState.finish, // 机器人下降状态
+    rebootState: RebootState.finish, // 机器复位状态
+    changeState: ChangeState.finish, // 机器变轨状态
   },
+  // 一个写死的登录信息
   canLoginInfo: {
     company: 'HKCRC',
     id: 0,
@@ -78,20 +110,30 @@ export const useStore = create<State>((set) => ({
   setUserInfo: (newInfo: { [key: string]: any }) =>
     set((state) => ({ userInfo: { ...state.userInfo, ...newInfo } })),
   workParams: {
-    track_laser_range: '100',
-    node_laser_range: '100',
-    upper_layer_diameter: '100',
-    lower_layer_diameter: '100',
-    lower_steel_bar_length: '100',
-    binding_timeout: '100',
-    ultrasonic_waves: false,
-    prevent_falling_laser: false,
-    auto_find_point: false,
+    track_laser_range: '104.5', // 变轨激光初始值
+    node_laser_range: '74.5', // 节点激光初始值
+    upper_layer_diameter: '20', // 上层钢筋直径初始值
+    lower_layer_diameter: '22', // 下层钢筋直径初始值
+    lower_steel_bar_length: '22', // 下层钢筋长度初始值
+    binding_timeout: '20', // 绑扎超时时间初始值
+    ultrasonic_waves: true, // 超声波初始值
+    prevent_falling_laser: true, // 防坠落激光初始值
+    auto_find_point: false, // 自动寻点开关初始值
+    inputOrbitMax: workParamsRange.orbitMax, // 变轨激光最大值
+    inputNodeMax: workParamsRange.nodeMax, // 节点激光最大值
   },
   setWorkParams: (newInfo: { [key: string]: any }) =>
     set((state) => ({
       workParams: {
         ...state.workParams,
+        ...newInfo,
+      },
+    })),
+  errorGroup: [],
+  setErrorGroup: (newInfo: { [key: string]: any }) =>
+    set((state) => ({
+      errorGroup: {
+        ...state.errorGroup,
         ...newInfo,
       },
     })),

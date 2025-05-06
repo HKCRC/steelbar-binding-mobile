@@ -1,7 +1,8 @@
-import useStore from '@/store';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import { RadioButton } from 'react-native-paper';
+
+import useStore from '@/store';
 
 const jumpCountList = [
   {
@@ -34,7 +35,7 @@ export const SelectJumpCount = () => {
   };
 
   return (
-    <View className="flex flex-col items-start justify-center gap-y-2">
+    <View className="flex flex-col items-start justify-center gap-y-1.5">
       <Text className="text-center text-lg font-bold">当前跳扎跳数</Text>
       <View className="flex flex-col items-center justify-center">
         {jumpCountList.map((item) => (

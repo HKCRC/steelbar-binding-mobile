@@ -3,20 +3,29 @@ export const storage_config = {
 };
 
 export enum GlobalConst {
-  forwardUp = 'up',
+  forwardUp = 'up', //上传消息前缀
   id = 'id',
   electric = 'electric',
-  status = 'tyingState',
-  error = 'faultId',
+  status = 'tyingState', //机器运行状态
+  error = 'faultId', //故障id
   overage = 'overage', // 卷丝余量
   orbitLaser = 'orbitLaser', // 变轨激光
   nodeLaser = 'nodeLaser', // 节点激光
-  orbitChangeLaser = 'orbitChangeLaser',
-  nodeChangeLaser = 'nodeChangeLaser',
-  changeStatus = 'changed',
-  rebootStatus = 'reboot',
-  downStatus = 'down',
-  wifiName = 'ESP',
+  orbitChangeLaser = 'orbitChangeLaser', //变轨激光范围
+  nodeChangeLaser = 'nodeChangeLaser', //节点激光范围
+  changeStatus = 'changed', //变轨状态
+  rebootStatus = 'reboot', //复位状态
+  downStatus = 'down', //机器下降状态
+  wifiName = 'ESP', //需要的wifi中应该存在的字符串
+  forwardCmd = 'cmd:', //指令命令前缀
+  forwardData = 'param:', //参数命令前缀
+  delay = 'delayed', //延时
+  upDiam = 'upperLevelDiameter', //上层钢筋直径
+  lowerDiam = 'lowerLevelDiameter', //下层钢筋直径
+  lowerBar = 'lowerLevelSteelBars', //下层钢筋
+  ultrasound = 'ultrasonic', //超声波,0关1开,下同
+  strip = 'antiFallLaser', //防坠激光
+  prevention = 'autoFindPoint', //自动寻点
 }
 
 ///语言类型
@@ -92,3 +101,12 @@ export enum InputPara {
   bottomDiameter = 6,
   bottomTime = 7,
 }
+
+export const workParamsRange = {
+  orbitInputMin: 100.0, // 变轨激光最小值
+  orbitMax: 107.0, // 变轨激光最大值
+  nodeMin: 68.0, // 节点激光最小值
+  nodeMax: 75.0, // 节点激光最大值
+  inputMin: 6, // 钢筋直径最小值
+  inputMax: 25, // 钢筋直径最大值
+};

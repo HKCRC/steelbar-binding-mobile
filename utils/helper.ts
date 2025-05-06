@@ -1,11 +1,12 @@
-import * as Network from 'expo-network';
 import WifiManager from 'react-native-wifi-reborn';
-
+import { NetworkInfo } from 'react-native-network-info';
 import { ConnectDeviceInfo } from './connectDeviceInfo';
+import eventBus from './eventBus';
 import { SocketManage } from './socketManage';
 
 import { GlobalSnackbarManager } from '@/components/snackbar-global';
-import { GlobalConst } from '@/constants';
+import { Command } from '@/constants/command';
+import { eventBusKey } from '@/constants/event';
 
 export const delayed = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -13,18 +14,18 @@ export const delayed = (ms: number): Promise<void> => {
 
 export const globalGetConnect = async () => {
   try {
-    const netWorkInfo = await Network.getNetworkStateAsync();
-    if (netWorkInfo.isConnected && netWorkInfo.type === Network.NetworkStateType.WIFI) {
-      const connectedWifiSSID = await WifiManager.getCurrentWifiSSID();
-      const getWifiIp = await WifiManager.getIP();
+    const connectedWifiSSID = await WifiManager.getCurrentWifiSSID();
+    if (connectedWifiSSID !== '') {
+      const getGatewayIp = await NetworkInfo.getGatewayIPAddress();
       if (
         connectedWifiSSID !== '' &&
-        getWifiIp !== '' &&
-        connectedWifiSSID.indexOf(GlobalConst.wifiName) > -1
+        getGatewayIp !== null
+        //  &&
+        // connectedWifiSSID.indexOf(GlobalConst.wifiName) > -1
       ) {
-        ConnectDeviceInfo.setWifiIp(getWifiIp);
+        ConnectDeviceInfo.setWifiIp(getGatewayIp);
         const socket = SocketManage.getInstance();
-        const ip = getWifiIp;
+        const ip = getGatewayIp;
         const port = ConnectDeviceInfo.wifiPort;
 
         if (ip !== '' && port !== 0) {
@@ -38,6 +39,10 @@ export const globalGetConnect = async () => {
           });
         }
       }
+    } else {
+      GlobalSnackbarManager.current?.show({
+        content: '没有连接到WiFi',
+      });
     }
   } catch (error) {
     console.error('error', error);
@@ -45,4 +50,8 @@ export const globalGetConnect = async () => {
       content: '获取网络状态失败',
     });
   }
+};
+
+export const sendCmdDispatch = (cmd: Command) => {
+  eventBus.publish(eventBusKey.SendCmdEvent, cmd);
 };

@@ -14,4 +14,5 @@ export enum eventBusKey {
   RebootEvent = 'RebootEvent',
   DownEvent = 'DownEvent',
   ErrorEvent = 'ErrorEvent',
+  SendCmdEvent = 'SendCmdEvent',
 }
