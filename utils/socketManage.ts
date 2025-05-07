@@ -1,5 +1,4 @@
 /* eslint-disable no-case-declarations */
-import { Buffer } from 'buffer';
 import TcpSocket from 'react-native-tcp-socket';
 
 import { ConnectDeviceInfo } from './connectDeviceInfo';

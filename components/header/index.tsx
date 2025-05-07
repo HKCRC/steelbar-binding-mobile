@@ -120,6 +120,7 @@ export const Header = () => {
         true,
         false
       );
+      setWifiPasswordDialogVisible(false);
       // Check the result without testing void type for truthiness
       GlobalSnackbarManager.current?.show({
         content: '连接成功',
