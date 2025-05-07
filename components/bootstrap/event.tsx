@@ -8,53 +8,54 @@ import useStore from '@/store';
 import eventBus from '@/utils/eventBus';
 
 export const EventHandler = () => {
-  const { setRobotStatus, setWorkParams, setErrorGroup, errorGroup } = useStore((state) => state);
+  const { setRobotStatus, setWorkParams, setErrorGroup, errorGroup, setDataInspect } = useStore(
+    (state) => state
+  );
 
   useEffect(() => {
-    eventBus.subscribe(eventBusKey.StopEvent, (eStop: boolean) => {
-      console.log('停止', eStop);
+    eventBus.subscribe(eventBusKey.StopEvent, ({ eStop }: { eStop: boolean }) => {
       setRobotStatus({
         robotDangerStatus: eStop,
       });
     });
 
-    eventBus.subscribe(eventBusKey.OverageEvent, (eRage: number) => {
-      console.log('卷丝余量', eRage);
-      setRobotStatus({
-        overage: eRage,
+    eventBus.subscribe(eventBusKey.OverageEvent, ({ eRage }: { eRage: number }) => {
+      setDataInspect({
+        overage_num: eRage,
       });
     });
 
-    eventBus.subscribe(eventBusKey.OrbitEvent, (eLaser: number) => {
-      console.log('变轨激光范围', eLaser);
-      setWorkParams({
-        track_laser_range: eLaser.toString(),
+    eventBus.subscribe(eventBusKey.OrbitEvent, ({ eLaser }: { eLaser: number }) => {
+      setDataInspect({
+        track_laser_num: eLaser,
       });
     });
 
-    eventBus.subscribe(eventBusKey.NodeEvent, (eLaser: number) => {
-      console.log('节点激光', eLaser);
-      setWorkParams({
-        node_laser_range: eLaser.toString(),
+    eventBus.subscribe(eventBusKey.NodeEvent, ({ eLaser }: { eLaser: number }) => {
+      setDataInspect({
+        node_laser_num: eLaser,
       });
     });
 
-    eventBus.subscribe(eventBusKey.OrbitChangeEvent, (eChangeLaser: number) => {
-      console.log('变轨激光范围', eChangeLaser);
-      setWorkParams({
-        inputOrbitMax: eChangeLaser,
-      });
-    });
+    eventBus.subscribe(
+      eventBusKey.OrbitChangeEvent,
+      ({ eChangeLaser }: { eChangeLaser: number }) => {
+        setWorkParams({
+          inputOrbitMax: eChangeLaser,
+        });
+      }
+    );
 
-    eventBus.subscribe(eventBusKey.NodeChangeEvent, (eChangeLaser: number) => {
-      console.log('节点激光范围', eChangeLaser);
-      setWorkParams({
-        inputNodeMax: eChangeLaser,
-      });
-    });
+    eventBus.subscribe(
+      eventBusKey.NodeChangeEvent,
+      ({ eChangeLaser }: { eChangeLaser: number }) => {
+        setWorkParams({
+          inputNodeMax: eChangeLaser,
+        });
+      }
+    );
 
-    eventBus.subscribe(eventBusKey.ChangeEvent, (eState: ChangeState) => {
-      console.log('变轨状态', eState);
+    eventBus.subscribe(eventBusKey.ChangeEvent, ({ eState }: { eState: ChangeState }) => {
       if (eState === ChangeState.move) {
         GlobalActivityIndicatorManager.current?.show('变轨中...', 0);
       } else {
@@ -62,7 +63,7 @@ export const EventHandler = () => {
       }
     });
 
-    eventBus.subscribe(eventBusKey.RebootEvent, (eState: RebootState) => {
+    eventBus.subscribe(eventBusKey.RebootEvent, ({ eState }: { eState: RebootState }) => {
       console.log('复位状态', eState);
       if (eState === RebootState.rebooting) {
         GlobalActivityIndicatorManager.current?.show('正在复位...', 0);
@@ -71,8 +72,7 @@ export const EventHandler = () => {
       }
     });
 
-    eventBus.subscribe(eventBusKey.DownEvent, (eState: DownState) => {
-      console.log('下降状态', eState);
+    eventBus.subscribe(eventBusKey.DownEvent, ({ eState }: { eState: DownState }) => {
       if (eState === DownState.downing) {
         GlobalActivityIndicatorManager.current?.show('正在下降...', 0);
       } else {
@@ -80,32 +80,29 @@ export const EventHandler = () => {
       }
     });
 
-    eventBus.subscribe(eventBusKey.ErrorEvent, (eError: number) => {
-      console.log('错误', eError);
+    eventBus.subscribe(eventBusKey.ErrorEvent, ({ eError }: { eError: number }) => {
       const now = new Date();
       const hours = now.getHours();
-      const minutes = now.getMinutes();
-      const seconds = now.getSeconds();
+      const minutes = now.getMinutes() < 10 ? `0${now.getMinutes()}` : now.getMinutes();
+      const seconds = now.getSeconds() < 10 ? `0${now.getSeconds()}` : now.getSeconds();
+      const copyErrorGroup = [...errorGroup];
       let nowIndex = 0; //错误存在的下标
       let isExist = false;
-      for (let i = 0; i < errorGroup.length; i++) {
-        if (eError - 1 === errorGroup[i].errorId) {
+      for (let i = 0; i < copyErrorGroup.length; i++) {
+        if (eError - 1 === copyErrorGroup[i].errorId) {
           isExist = true;
           nowIndex = i;
           break;
         }
       }
       if (isExist) {
-        errorGroup[nowIndex].time = `${hours}:${minutes}:${seconds}`;
+        copyErrorGroup[nowIndex].time = `${hours}:${minutes}:${seconds}`;
       } else {
         const temp = {
           time: `${hours}:${minutes}:${seconds}`,
           errorId: eError - 1,
         };
-        setErrorGroup({
-          ...errorGroup,
-          ...temp,
-        });
+        setErrorGroup(temp);
       }
     });
 

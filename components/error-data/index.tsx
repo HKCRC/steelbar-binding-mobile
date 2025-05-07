@@ -1,38 +1,33 @@
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dimensions, Text, View } from 'react-native';
 import { Button, Card, DataTable, Icon } from 'react-native-paper';
+
+import { useStore } from '@/store';
+import { ConnectDeviceInfo } from '@/utils/connectDeviceInfo';
 
 export const ErrorData = () => {
   const { height } = Dimensions.get('window');
   const targetHeight = height * 0.45;
   const rowCount = Math.floor(targetHeight / 100);
-  const [items] = useState([
-    {
-      key: 1,
-      index: '1',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 2,
-      index: '2',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 3,
-      index: '3',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 4,
-      index: '4',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-  ]);
+
+  const { errorGroup } = useStore((state) => state);
+
+  const [items, setItems] = useState<{ key: number; index: string; time: string; name: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    const temp = errorGroup?.map((item, index) => {
+      return {
+        key: index,
+        index: item.errorId.toString(),
+        time: item.time,
+        name: ConnectDeviceInfo.errorInfo[item.errorId],
+      };
+    });
+    setItems(temp || []);
+  }, [errorGroup]);
 
   const openErrorDetailPage = () => {
     router.push('/(error_info)');
@@ -52,19 +47,27 @@ export const ErrorData = () => {
             <DataTable.Title numeric>故障名称</DataTable.Title>
           </DataTable.Header>
 
-          {items.slice(0, rowCount).map((item) => (
-            <DataTable.Row key={item.key}>
+          {items.length > 0 ? (
+            items.slice(0, rowCount).map((item) => (
+              <DataTable.Row key={item.key}>
+                <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
+                  {item.index}
+                </DataTable.Cell>
+                <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
+                  {item.time}
+                </DataTable.Cell>
+                <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }} numeric>
+                  {item.name}
+                </DataTable.Cell>
+              </DataTable.Row>
+            ))
+          ) : (
+            <DataTable.Row>
               <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
-                {item.index}
-              </DataTable.Cell>
-              <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
-                {item.time}
-              </DataTable.Cell>
-              <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }} numeric>
-                {item.name}
+                暂无数据
               </DataTable.Cell>
             </DataTable.Row>
-          ))}
+          )}
         </DataTable>
 
         <View className="flex w-full items-end">

@@ -30,6 +30,21 @@ export class SocketManage {
   private port: number;
   private socket!: TcpSocket.Socket | null;
 
+  // 心跳相关属性
+  private heartbeatInterval: NodeJS.Timeout | null = null;
+  private heartbeatMessage = `${GlobalConst.forwardCmd}:heartbeat:${Date.now()}\n`;
+  private heartbeatIntervalMs = 15000; // 15秒发送一次心跳
+  private heartbeatTimeout: NodeJS.Timeout | null = null;
+  private heartbeatTimeoutMs = 5000; // 5秒心跳超时
+  private heartbeatMissedCount = 0;
+  private maxHeartbeatMissed = Number.MAX_SAFE_INTEGER; // 允许连续3次心跳未响应
+  private reconnectAttempts = 0;
+  private maxReconnectAttempts = 5;
+  private reconnectDelay = 3000; // 3秒后重试
+
+  // 添加一个缓冲区属性
+  private dataBuffer: string = '';
+
   private constructor() {
     this.ip = '';
     this.port = 8080;
@@ -61,10 +76,20 @@ export class SocketManage {
         port: this.port,
       };
 
+      // 在创建新连接前，确保移除旧的事件监听器
+      if (this.socket) {
+        this.socket.removeAllListeners('data');
+        this.socket.removeAllListeners('error');
+        this.socket.removeAllListeners('close');
+      }
+
       const socket = TcpSocket.createConnection(options, () => {
-        console.error('socket connected');
         ConnectDeviceInfo.setWifiIp(this.ip);
         ConnectDeviceInfo.connectStatus = true;
+        this.resetReconnectCount();
+
+        // 启动心跳
+        this.startHeartbeat();
 
         // 发送登录成功命令
         this.writeData(`${GlobalConst.forwardCmd}:${Command.loginSuccess}`);
@@ -73,20 +98,26 @@ export class SocketManage {
         eventBus.publish(new WifiEvent(true).eventName, new WifiEvent(true).data);
         GlobalActivityIndicatorManager.current?.show('WiFi连接成功');
       });
-
       this.socket = socket;
 
-      socket.on('data', (data) => {
-        // 需要处理buffer到字符串的转换
-        const eventData = data.toString();
-        this.onData(eventData);
+      // 绑定事件监听器
+      this.socket?.on('data', (data) => {
+        try {
+          // 将新数据添加到缓冲区
+          this.dataBuffer += data.toString();
+
+          // 处理缓冲区中的完整消息
+          this.processBuffer();
+        } catch (error) {
+          console.error('onData error', error);
+        }
       });
 
-      socket.on('error', (error) => {
+      this.socket?.on('error', (error) => {
         console.error('socket error', error);
       });
 
-      socket.on('close', () => {
+      this.socket?.on('close', () => {
         console.log('socket closed');
         this.onDone();
       });
@@ -98,6 +129,9 @@ export class SocketManage {
   }
 
   onDone() {
+    // 停止心跳
+    this.stopHeartbeat();
+
     ConnectDeviceInfo.disConnect();
     eventBus.publish(new WifiEvent(false).eventName, new WifiEvent(false).eventName);
     GlobalActivityIndicatorManager.current?.show('wifi连接已断开');
@@ -106,10 +140,20 @@ export class SocketManage {
   onData(event: string) {
     try {
       const eventData = event;
+
+      // 处理心跳响应
+      if (eventData.includes('heartbeat_response')) {
+        this.handleHeartbeatResponse();
+        return;
+      }
+
+      // 处理业务消息
       const listStr = eventData.split(':');
-      const command = listStr[0];
-      if (command === GlobalConst.forwardUp) {
-        switch (listStr[1]) {
+      const commandPrefix = listStr[0];
+      const commandName = listStr[1];
+
+      if (commandPrefix === GlobalConst.forwardUp) {
+        switch (commandName) {
           case GlobalConst.id:
             ConnectDeviceInfo.id = listStr?.[2];
             eventBus.publish(new IdEvent(listStr?.[2]).eventName, new IdEvent(listStr?.[2]).data);
@@ -128,7 +172,6 @@ export class SocketManage {
             } else {
               temp2 = parseInt(listStr[2], 10);
             }
-            console.error(`receive 工作状态:${temp2}`);
             ConnectDeviceInfo.workStatus = temp2;
             eventBus.publish(new StatusEvent(temp2).eventName, new StatusEvent(temp2).data);
             break;
@@ -179,11 +222,7 @@ export class SocketManage {
   writeData(fd: string) {
     try {
       if (ConnectDeviceInfo.connectStatus && this.socket) {
-        const result = this.socket.write(fd, 'utf8');
-
-        GlobalSnackbarManager.current?.show({
-          content: `数据已发送: ${fd}, 写入结果: ${result}`,
-        });
+        this.socket.write(fd);
       } else {
         GlobalSnackbarManager.current?.show({
           content: 'socket is not connected',
@@ -214,10 +253,145 @@ export class SocketManage {
     return !this.socket.connecting;
   }
 
+  // 启动心跳
+  private startHeartbeat() {
+    // 清除可能存在的旧心跳
+    this.stopHeartbeat();
+
+    // 设置新的心跳
+    this.heartbeatInterval = setInterval(() => {
+      if (this.isConnected()) {
+        try {
+          // 发送心跳包
+          this.writeData(this.heartbeatMessage);
+          console.log('心跳包已发送');
+
+          // 设置心跳超时
+          this.setHeartbeatTimeout();
+        } catch (error) {
+          console.error('发送心跳包失败:', error);
+          // 不立即处理连接丢失，而是增加心跳未响应计数
+          this.handleHeartbeatMissed();
+        }
+      }
+    }, this.heartbeatIntervalMs);
+  }
+
+  // 设置心跳超时
+  private setHeartbeatTimeout() {
+    // 清除可能存在的旧超时
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+    }
+
+    // 设置新的超时
+    this.heartbeatTimeout = setTimeout(() => {
+      console.log('心跳超时，未收到响应');
+      this.handleHeartbeatMissed();
+    }, this.heartbeatTimeoutMs);
+  }
+
+  // 处理心跳未响应
+  private handleHeartbeatMissed() {
+    this.heartbeatMissedCount++;
+    console.log(`心跳未响应次数: ${this.heartbeatMissedCount}/${this.maxHeartbeatMissed}`);
+
+    // 只有当连续多次心跳未响应时，才考虑重连
+    if (this.heartbeatMissedCount >= this.maxHeartbeatMissed) {
+      console.log('心跳连续多次未响应，尝试重连');
+      this.handleConnectionLost();
+    }
+  }
+
+  // 处理心跳响应
+  private handleHeartbeatResponse() {
+    // 重置心跳未响应计数
+    this.heartbeatMissedCount = 0;
+
+    // 清除心跳超时
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+      this.heartbeatTimeout = null;
+    }
+  }
+
+  // 停止心跳
+  private stopHeartbeat() {
+    if (this.heartbeatInterval) {
+      clearInterval(this.heartbeatInterval);
+      this.heartbeatInterval = null;
+    }
+
+    if (this.heartbeatTimeout) {
+      clearTimeout(this.heartbeatTimeout);
+      this.heartbeatTimeout = null;
+    }
+
+    // 重置心跳未响应计数
+    this.heartbeatMissedCount = 0;
+  }
+
+  // 处理连接丢失
+  private handleConnectionLost() {
+    console.log('检测到连接丢失，尝试重连');
+    this.stopHeartbeat();
+
+    // 更新连接状态
+    ConnectDeviceInfo.disConnect();
+
+    // 如果重连次数未超过最大尝试次数，则尝试重连
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      console.log(`尝试重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`);
+
+      // 通知用户正在重连
+      GlobalSnackbarManager.current?.show({
+        content: `网络连接已断开，正在尝试重连 (${this.reconnectAttempts}/${this.maxReconnectAttempts})...`,
+      });
+
+      // 延迟重连，避免立即重连可能导致的问题
+      setTimeout(() => {
+        this.connectSocket();
+      }, this.reconnectDelay);
+    } else {
+      console.error('重连失败，已达到最大尝试次数');
+      // 通知用户连接已断开
+      GlobalSnackbarManager.current?.show({
+        content: '网络连接已断开，请检查网络设置',
+      });
+
+      // 发布WiFi断开事件
+      eventBus.publish(new WifiEvent(false).eventName, new WifiEvent(false).data);
+    }
+  }
+
+  private resetReconnectCount() {
+    this.reconnectAttempts = 0;
+  }
+
   // 断开连接方法
   disconnectSocket() {
+    // 停止心跳
+    this.stopHeartbeat();
+
     if (this.socket) {
       this.socket.destroy();
+    }
+  }
+
+  // 添加处理缓冲区的方法
+  private processBuffer() {
+    // 假设消息以换行符结束，根据实际情况调整
+    const messages = this.dataBuffer.split('\n');
+
+    // 保留最后一个可能不完整的消息
+    this.dataBuffer = messages.pop() || '';
+
+    // 处理完整的消息
+    for (const message of messages) {
+      if (message.trim()) {
+        this.onData(message);
+      }
     }
   }
 }

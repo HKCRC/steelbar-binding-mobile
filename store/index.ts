@@ -23,7 +23,6 @@ interface State {
     downState: DownState;
     rebootState: RebootState;
     changeState: ChangeState;
-    overage: number;
   };
   setRobotStatus: (newInfo: Partial<State['robotStatus']>) => void;
   userInfo: {
@@ -44,12 +43,18 @@ interface State {
     inputOrbitMax: number;
     inputNodeMax: number;
   };
+  data_inspect: {
+    overage_num: number;
+    node_laser_num: number;
+    track_laser_num: number;
+  };
   setWorkParams: (newInfo: Partial<State['workParams']>) => void;
   errorGroup: {
     time: string;
     errorId: number;
   }[];
-  setErrorGroup: (newInfo: Partial<State['errorGroup']>) => void;
+  setDataInspect: (newInfo: Partial<State['data_inspect']>) => void;
+  setErrorGroup: (newInfo: { time: string; errorId: number }) => void;
 }
 
 export const initWorkParams = {
@@ -68,7 +73,6 @@ export const initWorkParams = {
 
 export const useStore = create<State>((set) => ({
   robotStatus: {
-    overage: 0, // 卷丝余量
     robotDangerStatus: false, // 软急停状态
     direction: new Map([
       // 前进方向
@@ -85,6 +89,13 @@ export const useStore = create<State>((set) => ({
     rebootState: RebootState.finish, // 机器复位状态
     changeState: ChangeState.finish, // 机器变轨状态
   },
+  data_inspect: {
+    overage_num: 0, // 卷丝余量
+    node_laser_num: 0, // 节点激光初始值
+    track_laser_num: 0, // 变轨激光初始值
+  },
+  setDataInspect: (newInfo: { [key: string]: any }) =>
+    set((state) => ({ data_inspect: { ...state.data_inspect, ...newInfo } })),
   // 一个写死的登录信息
   canLoginInfo: {
     company: 'HKCRC',
@@ -130,12 +141,9 @@ export const useStore = create<State>((set) => ({
       },
     })),
   errorGroup: [],
-  setErrorGroup: (newInfo: { [key: string]: any }) =>
+  setErrorGroup: (newInfo: { time: string; errorId: number }) =>
     set((state) => ({
-      errorGroup: {
-        ...state.errorGroup,
-        ...newInfo,
-      },
+      errorGroup: [newInfo, ...state.errorGroup],
     })),
 }));
 

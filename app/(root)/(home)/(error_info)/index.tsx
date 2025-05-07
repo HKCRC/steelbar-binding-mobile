@@ -1,56 +1,62 @@
-import { Header } from '@/components/header';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { Button, Card, DataTable, Icon } from 'react-native-paper';
 
+import { Header } from '@/components/header';
+import { useStore } from '@/store';
+import { ConnectDeviceInfo } from '@/utils/connectDeviceInfo';
+
 export default function Error() {
-  const [numberOfItemsPerPageList] = useState([2, 3, 4]);
+  const [numberOfItemsPerPageList] = useState([10]);
+  const [items, setItems] = useState<{ key: number; index: string; time: string; name: string }[]>(
+    []
+  );
   const [itemsPerPage, onItemsPerPageChange] = useState(numberOfItemsPerPageList[0]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const { errorGroup } = useStore((state) => state);
 
   const goback = () => {
     router.back();
   };
 
-  const [items] = useState([
-    {
-      key: 1,
-      index: '1',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 2,
-      index: '2',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 3,
-      index: '3',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 4,
-      index: '4',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 5,
-      index: '5',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-    {
-      key: 6,
-      index: '6',
-      time: '2025-05-01 10:00:00',
-      name: '钢筋不足',
-    },
-  ]);
+  useEffect(() => {
+    const temp = errorGroup?.map((item, index) => {
+      return {
+        key: index,
+        index: item.errorId.toString(),
+        time: item.time,
+        name: ConnectDeviceInfo.errorInfo[item.errorId],
+      };
+    });
+    setItems(temp || []);
+
+    if (currentPage > 0 && temp && temp.length <= currentPage * itemsPerPage) {
+      setCurrentPage(0);
+    }
+  }, [errorGroup, currentPage, itemsPerPage]);
+
+  const paginatedItems = useMemo(() => {
+    const startIndex = currentPage * itemsPerPage;
+    return items.slice(startIndex, startIndex + itemsPerPage);
+  }, [items, currentPage, itemsPerPage]);
+
+  const totalPages = useMemo(() => {
+    return Math.ceil(items.length / itemsPerPage);
+  }, [items.length, itemsPerPage]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  const handleNextPage = () => {
+    if (currentPage < totalPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
 
   return (
     <View className="flex w-full">
@@ -83,7 +89,7 @@ export default function Error() {
                 <DataTable.Title numeric>故障名称</DataTable.Title>
               </DataTable.Header>
 
-              {items.map((item) => (
+              {paginatedItems.map((item) => (
                 <DataTable.Row key={item.key}>
                   <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
                     {item.index}
@@ -99,11 +105,20 @@ export default function Error() {
             </DataTable>
 
             <View className="mt-5 flex flex-row items-center justify-center gap-x-16">
-              <TouchableOpacity className="flex flex-row items-center gap-x-1">
+              <TouchableOpacity
+                className={`flex flex-row items-center gap-x-1 ${currentPage === 0 ? 'opacity-50' : ''}`}
+                onPress={handlePrevPage}
+                disabled={currentPage === 0}>
                 <Icon source="menu-left" size={30} />
                 <Text className="text-md">上一页</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex flex-row items-center gap-x-1">
+              <Text className="text-md">
+                第 {currentPage + 1} 页 / 共 {totalPages} 页
+              </Text>
+              <TouchableOpacity
+                className={`flex flex-row items-center gap-x-1 ${currentPage >= totalPages - 1 ? 'opacity-50' : ''}`}
+                onPress={handleNextPage}
+                disabled={currentPage >= totalPages - 1}>
                 <Text className="text-md">下一页</Text>
                 <Icon source="menu-right" size={30} />
               </TouchableOpacity>

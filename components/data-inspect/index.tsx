@@ -1,28 +1,36 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Card, DataTable, Icon } from 'react-native-paper';
 
+import { useStore } from '@/store';
 export const DataInspect = () => {
-  const [items] = useState([
-    {
-      key: 1,
-      name: '变轨激光',
-      value: 356,
-      unit: 'mm',
-    },
-    {
-      key: 2,
-      name: '节点激光',
-      value: 262,
-      unit: 'mm',
-    },
-    {
-      key: 3,
-      name: '卷丝余量',
-      value: 159,
-      unit: '%',
-    },
-  ]);
+  const { data_inspect } = useStore((state) => state);
+  const [items, setItems] = useState<{ key: number; name: string; value: number; unit: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    setItems([
+      {
+        key: 1,
+        name: '变轨激光',
+        value: data_inspect.track_laser_num,
+        unit: 'mm',
+      },
+      {
+        key: 2,
+        name: '节点激光',
+        value: data_inspect.node_laser_num,
+        unit: 'mm',
+      },
+      {
+        key: 3,
+        name: '卷丝余量',
+        value: data_inspect.overage_num,
+        unit: '%',
+      },
+    ]);
+  }, [data_inspect]);
 
   return (
     <Card>
