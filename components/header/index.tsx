@@ -7,10 +7,12 @@ import { Button, Dialog, Icon, Modal, Portal, TextInput } from 'react-native-pap
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WifiManager, { WifiEntry } from 'react-native-wifi-reborn';
 
+import { GlobalActivityIndicatorManager } from '../activity-indicator-global';
 import { GlobalSnackbarManager } from '../snackbar-global';
 
 import useStore from '@/store';
 import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
+import { delayed, globalGetConnect } from '@/utils/helper';
 
 export const Header = () => {
   const { top } = useSafeAreaInsets();
@@ -77,6 +79,16 @@ export const Header = () => {
     setCurrentConnectWifiSSID(connectedWifiSSID);
   };
 
+  const handleConnectToSocketAgain = async () => {
+    GlobalActivityIndicatorManager.current?.show('重新连接中...', 0);
+
+    await delayed(2000);
+
+    globalGetConnect();
+
+    GlobalActivityIndicatorManager.current?.hide();
+  };
+
   // 刷新WiFi列表
   const handleRefreshWifiList = async () => {
     const loadWifiList = await WifiManager.loadWifiList();
@@ -114,22 +126,29 @@ export const Header = () => {
         });
         return;
       }
+      setWifiPassword('');
+      setWifiPasswordDialogVisible(false);
+      setWifiChooseListVisible(false);
+      GlobalActivityIndicatorManager.current?.show(
+        `正在连接${currentSelectedWifi.current}中...`,
+        0
+      );
       await WifiManager.connectToProtectedSSID(
         currentSelectedWifi.current,
         wifiPassword,
         true,
         false
       );
-      setWifiPasswordDialogVisible(false);
       // Check the result without testing void type for truthiness
       GlobalSnackbarManager.current?.show({
         content: '连接成功',
       });
+      // 重新连接socket
+      handleConnectToSocketAgain();
       setCurrentConnectWifiSSID(currentSelectedWifi.current);
-      setWifiPassword('');
-      setWifiPasswordDialogVisible(false);
     } catch (error) {
       console.log(error);
+      GlobalActivityIndicatorManager.current?.hide();
       GlobalSnackbarManager.current?.show({
         content: '连接失败,请检查密码是否正确或者当前Wi-Fi是否正常',
       });

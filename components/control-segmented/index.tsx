@@ -1,11 +1,23 @@
 import { View } from 'react-native';
 import { SegmentedButtons } from 'react-native-paper';
 
+import { Command } from '@/constants/command';
 import useStore from '@/store';
 import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
+import { sendCmdDispatch } from '@/utils/helper';
 
 export const ControlSegmented = () => {
   const { robotStatus, setRobotStatus } = useStore((state) => state);
+
+  const sendCmd = (mode: ROBOT_CURRENT_MODE) => {
+    if (mode === ROBOT_CURRENT_MODE.LOCKED) {
+      sendCmdDispatch(Command.lockUp);
+    } else if (mode === ROBOT_CURRENT_MODE.MANUAL) {
+      sendCmdDispatch(Command.manualModel);
+    } else if (mode === ROBOT_CURRENT_MODE.AUTO) {
+      sendCmdDispatch(Command.autoModel);
+    }
+  };
 
   return (
     <View className="mb-10 mt-4 w-full gap-y-5">
@@ -13,6 +25,7 @@ export const ControlSegmented = () => {
         value={robotStatus.currentMode}
         density="medium"
         onValueChange={(value) => {
+          sendCmd(value as ROBOT_CURRENT_MODE);
           setRobotStatus({
             currentMode: value as ROBOT_CURRENT_MODE,
           });

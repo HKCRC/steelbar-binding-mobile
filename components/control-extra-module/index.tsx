@@ -92,7 +92,7 @@ export const ControlExtraModule = () => {
         </Button>
       </View>
 
-      {robotStatus.currentMode === ROBOT_CURRENT_MODE.MANUAL &&
+      {robotStatus.currentMode === ROBOT_CURRENT_MODE.AUTO &&
       robotStatus.currentBindingMode === ROBOT_WORK_MODE.SKIP_BINDING ? (
         <View className="absolute left-0 top-0">
           <SelectJumpCount />

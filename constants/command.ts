@@ -1,4 +1,5 @@
 export enum Command {
+  lockUp = 0, // 锁止
   goForward = 1, // 前进
   goBack = 2, // 后退
   goLeft = 3, // 向左变轨
