@@ -30,16 +30,20 @@ export const ControlManualControl = () => {
 
   const switchTop = (isPressed: boolean) => {
     if (isPressed) {
+      console.error('goForward');
       sendCmdDispatch(Command.goForward);
     } else {
+      console.error('release');
       sendCmdDispatch(Command.release);
     }
   };
 
   const switchDown = (isPressed: boolean) => {
     if (isPressed) {
+      console.error('goBack');
       sendCmdDispatch(Command.goBack);
     } else {
+      console.error('release');
       sendCmdDispatch(Command.release);
     }
   };
@@ -53,7 +57,7 @@ export const ControlManualControl = () => {
             style={{ width: 50, height: 50, top: -32 }}
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => switchDown(true)} onPressOut={() => switchDown(false)}>
+        <TouchableOpacity onPressIn={() => switchDown(true)} onPressOut={() => switchDown(false)}>
           <Image
             source={require('@/assets/icon/down-arrow.png')}
             style={{ width: 50, height: 50, top: 32 }}
