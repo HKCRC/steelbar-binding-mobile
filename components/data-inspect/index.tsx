@@ -34,7 +34,7 @@ export const DataInspect = () => {
 
   return (
     <Card>
-      <View className="w-full px-5 pb-3 pt-4">
+      <View className="w-full px-5 pb-1 pt-2">
         <View className="mb-2 mt-3 flex flex-row items-center justify-center">
           <Icon source="database-sync-outline" size={22} />
           <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">数据监控</Text>

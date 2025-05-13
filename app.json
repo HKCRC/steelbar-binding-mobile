@@ -55,7 +55,7 @@
     ],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.ryderdu"
+      "bundleIdentifier": "com.tyings.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -65,7 +65,7 @@
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION"
       ],
-      "package": "com.ryderdu"
+      "package": "com.tyings.app"
     },
     "extra": {
       "router": {},

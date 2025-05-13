@@ -1,7 +1,7 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import { Text, View } from 'react-native';
+import { Dimensions, ScrollView, Text, View } from 'react-native';
 import { Button, Card, Icon, TextInput } from 'react-native-paper';
 
 import { Header } from '@/components/header';
@@ -10,6 +10,7 @@ import useStore from '@/store';
 
 export default function Setting() {
   const { canLoginInfo } = useStore((state) => state);
+  const { width } = Dimensions.get('window');
   const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
   const goback = () => {
     router.back();
@@ -31,13 +32,13 @@ export default function Setting() {
             source={require('@/assets/images/p3.png')}
             contentFit="contain"
             style={{
-              width: 350,
-              height: 350,
+              width: 300,
+              height: 300,
             }}
           />
         </View>
 
-        <View className="w-[50%]">
+        <View className="w-[50%] ">
           <Card className="px-5 py-6">
             <View className="flex flex-row items-center justify-center">
               <View className="mb-2 flex flex-row items-center justify-center">
@@ -45,43 +46,45 @@ export default function Setting() {
                 <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">用户信息</Text>
               </View>
             </View>
-            <View className="gap-5">
-              <TextInput
-                label="用户名"
-                value={canLoginInfo.name}
-                disabled
-                style={{ backgroundColor: '#01264142' }}
-                keyboardType="numeric"
-              />
+            <ScrollView className="h-72 lg:h-auto">
+              <View className="gap-5">
+                <TextInput
+                  label="用户名"
+                  value={canLoginInfo.name}
+                  disabled
+                  style={{ backgroundColor: '#01264142' }}
+                  keyboardType="numeric"
+                />
 
-              <TextInput
-                label="用户ID"
-                value={canLoginInfo.id.toString()}
-                disabled
-                style={{ backgroundColor: '#01264142' }}
-              />
+                <TextInput
+                  label="用户ID"
+                  value={canLoginInfo.id.toString()}
+                  disabled
+                  style={{ backgroundColor: '#01264142' }}
+                />
 
-              <TextInput
-                label="公司地址"
-                value={canLoginInfo.position}
-                disabled
-                style={{ backgroundColor: '#01264142' }}
-              />
+                <TextInput
+                  label="公司地址"
+                  value={canLoginInfo.position}
+                  disabled
+                  style={{ backgroundColor: '#01264142' }}
+                />
 
-              <TextInput
-                label="公司名称"
-                value={canLoginInfo.company}
-                disabled
-                style={{ backgroundColor: '#01264142' }}
-              />
+                <TextInput
+                  label="公司名称"
+                  value={canLoginInfo.company}
+                  disabled
+                  style={{ backgroundColor: '#01264142' }}
+                />
 
-              <TextInput
-                label="联系电话"
-                value={canLoginInfo.number}
-                disabled
-                style={{ backgroundColor: '#01264142' }}
-              />
-            </View>
+                <TextInput
+                  label="联系电话"
+                  value={canLoginInfo.number}
+                  disabled
+                  style={{ backgroundColor: '#01264142' }}
+                />
+              </View>
+            </ScrollView>
 
             <View className="mt-5 flex flex-row items-center justify-center gap-10">
               <Button mode="contained" icon="logout" className="px-3" onPress={logout}>

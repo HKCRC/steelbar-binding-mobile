@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useEffect, useState, useMemo } from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Text, TouchableOpacity, View } from 'react-native';
 import { Button, Card, DataTable, Icon } from 'react-native-paper';
 
 import { Header } from '@/components/header';
@@ -9,7 +9,8 @@ import { useStore } from '@/store';
 import { ConnectDeviceInfo } from '@/utils/connectDeviceInfo';
 
 export default function Error() {
-  const [numberOfItemsPerPageList] = useState([10]);
+  const { height } = Dimensions.get('window');
+  const [numberOfItemsPerPageList] = useState([height > 800 ? 10 : 3]);
   const [items, setItems] = useState<{ key: number; index: string; time: string; name: string }[]>(
     []
   );
@@ -82,27 +83,31 @@ export default function Error() {
                 <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">历史故障记录</Text>
               </View>
             </View>
-            <DataTable>
-              <DataTable.Header>
-                <DataTable.Title>序号</DataTable.Title>
-                <DataTable.Title>发生时间</DataTable.Title>
-                <DataTable.Title numeric>故障名称</DataTable.Title>
-              </DataTable.Header>
+            {items.length > 0 ? (
+              <DataTable>
+                <DataTable.Header>
+                  <DataTable.Title>序号</DataTable.Title>
+                  <DataTable.Title>发生时间</DataTable.Title>
+                  <DataTable.Title numeric>故障名称</DataTable.Title>
+                </DataTable.Header>
 
-              {paginatedItems.map((item) => (
-                <DataTable.Row key={item.key}>
-                  <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
-                    {item.index}
-                  </DataTable.Cell>
-                  <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
-                    {item.time}
-                  </DataTable.Cell>
-                  <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }} numeric>
-                    {item.name}
-                  </DataTable.Cell>
-                </DataTable.Row>
-              ))}
-            </DataTable>
+                {paginatedItems.map((item) => (
+                  <DataTable.Row key={item.key}>
+                    <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
+                      {item.index}
+                    </DataTable.Cell>
+                    <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
+                      {item.time}
+                    </DataTable.Cell>
+                    <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }} numeric>
+                      {item.name}
+                    </DataTable.Cell>
+                  </DataTable.Row>
+                ))}
+              </DataTable>
+            ) : (
+              <Text className="my-5 text-center text-lg font-bold">暂无故障记录</Text>
+            )}
 
             <View className="mt-5 flex flex-row items-center justify-center gap-x-16">
               <TouchableOpacity

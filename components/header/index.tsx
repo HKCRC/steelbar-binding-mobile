@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
+import { router, usePathname } from 'expo-router';
 import { BatteryFull, Gear, WifiHigh } from 'phosphor-react-native';
 import { useEffect, useRef, useState } from 'react';
 import { PermissionsAndroid, TouchableOpacity, View, Text, FlatList, AppState } from 'react-native';
@@ -12,7 +12,8 @@ import { GlobalSnackbarManager } from '../snackbar-global';
 
 import useStore from '@/store';
 import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
-import { delayed, globalGetConnect } from '@/utils/helper';
+import { delayed, globalGetConnect, sendCmdDispatch } from '@/utils/helper';
+import { Command } from '@/constants/command';
 
 export const Header = () => {
   const { top } = useSafeAreaInsets();
@@ -21,7 +22,7 @@ export const Header = () => {
   const [wifiPermission, setWifiPermission] = useState(false);
   const [wifiList, setWifiList] = useState<WifiEntry[]>([]);
   const [wifiPassword, setWifiPassword] = useState('');
-
+  const pathname = usePathname();
   // 连接WiFi密码对话框是否可见
   const [wifiPasswordDialogVisible, setWifiPasswordDialogVisible] = useState(false);
   const hideWifiPasswordDialog = () => setWifiPasswordDialogVisible(false);
@@ -110,6 +111,7 @@ export const Header = () => {
 
   // 强制暂停
   const handleForcePause = () => {
+    sendCmdDispatch(Command.softStop);
     setRobotStatus({
       robotDangerStatus: true,
       currentMode: ROBOT_CURRENT_MODE.LOCKED,
@@ -158,10 +160,10 @@ export const Header = () => {
   return (
     <View
       className="flex w-full flex-row items-center justify-between px-6 pb-3 pt-5"
-      style={{ paddingTop: top + 20, height: 120 }}>
+      style={{ paddingTop: top + 15, height: 105 }}>
       <Image
         source={require('@/assets/hkcrc.png')}
-        style={{ width: 449, height: 48 }}
+        style={{ width: 400, height: 42.78 }}
         contentFit="contain"
         transition={1000}
       />
@@ -251,22 +253,26 @@ export const Header = () => {
           </Text>
         </TouchableOpacity>
 
-        <TouchableOpacity
-          className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
-          onPress={gotoSetting}>
-          <Gear size={24} weight="bold" />
-          <Text className="text-sm text-gray-800">设置</Text>
-        </TouchableOpacity>
+        {pathname.indexOf('/login') === -1 ? (
+          <TouchableOpacity
+            className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
+            onPress={gotoSetting}>
+            <Gear size={24} weight="bold" />
+            <Text className="text-sm text-gray-800">设置</Text>
+          </TouchableOpacity>
+        ) : null}
 
         <BatteryFull size={32} weight="bold" />
 
-        <Button
-          icon={robotStatus.robotDangerStatus ? 'pause' : 'play'}
-          mode="contained"
-          buttonColor="red"
-          onPress={handleForcePause}>
-          软急停
-        </Button>
+        {pathname.indexOf('/login') === -1 ? (
+          <Button
+            icon={robotStatus.robotDangerStatus ? 'pause' : 'play'}
+            mode="contained"
+            buttonColor="red"
+            onPress={handleForcePause}>
+            软急停
+          </Button>
+        ) : null}
       </View>
     </View>
   );

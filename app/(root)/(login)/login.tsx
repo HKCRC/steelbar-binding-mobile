@@ -2,7 +2,15 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
-import { Text, TextInput, TouchableOpacity, View, Dimensions } from 'react-native';
+import {
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
 import { Button, Checkbox, Icon, Modal, Portal } from 'react-native-paper';
 import { WebView } from 'react-native-webview';
 
@@ -75,7 +83,7 @@ export default function Login() {
   };
 
   return (
-    <View className="flex w-full">
+    <View className="flex h-full w-full">
       <View className="relative w-full">
         <Image
           source={require('@/assets/images/bg.jpg')}
@@ -124,35 +132,38 @@ export default function Login() {
             </View>
           </Modal>
         </Portal>
-        <View className="mt-20 flex flex-row px-32 py-16">
+        <View className="mt-20 flex flex-row px-32">
           <View className="relative flex w-5/12 items-center">
             <View className="w-full">
               <View className="">
-                <View className="relative">
-                  <View className="absolute left-2 top-0 h-full w-10 items-center justify-center">
-                    <Icon source="account-circle-outline" size={22} />
-                  </View>
-                  <TextInput
-                    className="rounded-tl-2xl rounded-tr-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
-                    placeholder="请输入用户名"
-                    value={username}
-                    onChangeText={(text) => setUsername(text)}
-                  />
-                </View>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                  <View className="relative">
+                    <View className="absolute left-2 top-0 h-full w-10 items-center justify-center">
+                      <Icon source="account-circle-outline" size={22} />
+                    </View>
 
-                <View className="relative">
-                  <View className="absolute left-2 top-0 h-full w-10 items-center justify-center">
-                    <Icon source="lock-outline" size={22} />
+                    <TextInput
+                      className="rounded-tl-2xl rounded-tr-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
+                      placeholder="请输入用户名"
+                      value={username}
+                      onChangeText={(text) => setUsername(text)}
+                    />
                   </View>
-                  <TextInput
-                    className="rounded-bl-2xl rounded-br-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
-                    placeholder="请输入密码"
-                    secureTextEntry
-                    value={password}
-                    onChangeText={(text) => setPassword(text)}
-                  />
-                </View>
-
+                </KeyboardAvoidingView>
+                <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+                  <View className="relative">
+                    <View className="absolute left-2 top-0 h-full w-10 items-center justify-center">
+                      <Icon source="lock-outline" size={22} />
+                    </View>
+                    <TextInput
+                      className="rounded-bl-2xl rounded-br-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
+                      placeholder="请输入密码"
+                      secureTextEntry
+                      value={password}
+                      onChangeText={(text) => setPassword(text)}
+                    />
+                  </View>
+                </KeyboardAvoidingView>
                 <View className="mt-5 flex flex-col items-start justify-center">
                   <View className="flex flex-row items-center justify-center">
                     <Checkbox.Android
@@ -172,15 +183,13 @@ export default function Login() {
                       }}
                     />
                     <View className="-mt-0.5 flex flex-row items-center justify-center">
-                      <Text className="text-md">
-                        承诺已知悉{' '}
+                      <View className="text-md flex flex-row items-center justify-center">
+                        <Text>承诺已知悉</Text>
                         <TouchableOpacity onPress={openGuideDialog}>
-                          <Text className="top-[3px] text-blue-500">
-                            《钢筋绑扎机器人用户手册》
-                          </Text>
+                          <Text className=" text-blue-500">《钢筋绑扎机器人用户手册》</Text>
                         </TouchableOpacity>
-                        的全部内容
-                      </Text>
+                        <Text>的全部内容</Text>
+                      </View>
                     </View>
                   </View>
                 </View>

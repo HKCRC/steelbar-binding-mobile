@@ -1,14 +1,23 @@
 import { View, Text } from 'react-native';
 import { Button, Icon, Portal } from 'react-native-paper';
 
+import { Command } from '@/constants/command';
 import useStore from '@/store';
+import { ROBOT_CURRENT_MODE } from '@/types';
+import { sendCmdDispatch } from '@/utils/helper';
 
 export const DangerousStatus = () => {
   const { setRobotStatus } = useStore((state) => state);
 
   const releaseDangerStatus = () => {
-    setRobotStatus({ robotDangerStatus: false });
+    // 切换为手动
+    sendCmdDispatch(Command.manualModel);
+    setRobotStatus({
+      robotDangerStatus: false,
+      currentMode: ROBOT_CURRENT_MODE.MANUAL,
+    });
   };
+
   return (
     <Portal>
       <View className="absolute left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-red-500/70">

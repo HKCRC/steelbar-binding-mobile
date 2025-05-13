@@ -90,18 +90,18 @@ export const ControlAutoSelectDirection = ({ onStart }: ControlAutoSelectDirecti
   };
 
   return (
-    <View className="relative mt-16 flex flex-row items-center justify-center gap-x-5">
+    <View className="relative mt-10 flex flex-row items-center justify-center gap-x-5">
       <View className="absolute left-0 top-0 h-full w-full flex-col items-center justify-center gap-y-10">
-        <TouchableOpacity onPress={() => directionClick(DIRECTION.UP)} className="-top-[40px]">
+        <TouchableOpacity onPress={() => directionClick(DIRECTION.UP)} className="-top-[30px]">
           <CaretUp
-            size={60}
+            size={50}
             weight={robotStatus.direction.get(DIRECTION.UP) === true ? 'fill' : 'duotone'}
             color="#0126416F"
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => directionClick(DIRECTION.DOWN)} className="-bottom-[40px]">
+        <TouchableOpacity onPress={() => directionClick(DIRECTION.DOWN)} className="-bottom-[30px]">
           <CaretDown
-            size={60}
+            size={50}
             weight={robotStatus.direction.get(DIRECTION.DOWN) === true ? 'fill' : 'duotone'}
             color="#0126416F"
           />
@@ -112,12 +112,12 @@ export const ControlAutoSelectDirection = ({ onStart }: ControlAutoSelectDirecti
         className="relative flex w-full flex-row items-center justify-center">
         <View className="flex">
           {robotStatus.isWorking ? (
-            <View className="flex h-[90px] w-[90px] flex-row items-center justify-center rounded-full bg-[#012641]">
+            <View className="flex h-[80px] w-[80px] flex-row items-center justify-center rounded-full bg-[#012641]">
               <Icon source="pause" color="#ffffff" size={22} />
               <Text className="ml-1 text-center text-xl font-normal text-white">暂停</Text>
             </View>
           ) : (
-            <View className="flex h-[90px] w-[90px] flex-row items-center justify-center rounded-full bg-[#012641]">
+            <View className="flex h-[80px] w-[80px] flex-row items-center justify-center rounded-full bg-[#012641]">
               <Icon source="play" color="#ffffff" size={22} />
               <Text className="ml-1 text-center text-xl font-normal text-white">开始</Text>
             </View>
@@ -125,16 +125,16 @@ export const ControlAutoSelectDirection = ({ onStart }: ControlAutoSelectDirecti
         </View>
       </TouchableOpacity>
       <View className="absolute left-0 top-0 h-full w-full flex-row items-center justify-center gap-x-10">
-        <TouchableOpacity onPress={() => directionClick(DIRECTION.LEFT)} className="-left-[40px]">
+        <TouchableOpacity onPress={() => directionClick(DIRECTION.LEFT)} className="-left-[30px]">
           <CaretLeft
-            size={60}
+            size={50}
             weight={robotStatus.direction.get(DIRECTION.LEFT) === true ? 'fill' : 'duotone'}
             color="#0126416F"
           />
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => directionClick(DIRECTION.RIGHT)} className="-right-[40px]">
+        <TouchableOpacity onPress={() => directionClick(DIRECTION.RIGHT)} className="-right-[30px]">
           <CaretRight
-            size={60}
+            size={50}
             weight={robotStatus.direction.get(DIRECTION.RIGHT) === true ? 'fill' : 'duotone'}
             color="#0126416F"
           />

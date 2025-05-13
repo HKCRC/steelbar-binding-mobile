@@ -22,7 +22,7 @@ const Home = () => {
         style={{ height: height - headerHeight }}
         className="flex w-full flex-row justify-center px-6 py-5">
         <View className="w-[37%]">
-          <View className="relative mx-auto flex w-[95%] flex-col justify-between gap-y-5">
+          <View className="relative mx-auto flex w-[95%] flex-col justify-between gap-y-4">
             <View>
               <ErrorData />
             </View>

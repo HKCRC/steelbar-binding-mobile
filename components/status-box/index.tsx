@@ -14,7 +14,7 @@ export const StatusBox = () => {
   const hideModal = () => setVisible(false);
 
   return (
-    <View className="w-[100%] flex-col items-center justify-start">
+    <View className="w-[100%] flex-col items-center justify-end">
       <ParamsSettingModal visible={visible} onDismiss={hideModal} />
 
       <Image
