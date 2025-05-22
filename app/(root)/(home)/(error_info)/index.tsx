@@ -63,19 +63,8 @@ export default function Error() {
     <View className="flex w-full">
       <Header />
 
-      <View className="flex w-full flex-row items-center justify-between px-20 py-10">
-        <View className="w-[35%] items-center justify-center">
-          <Image
-            source={require('@/assets/images/p3.png')}
-            contentFit="contain"
-            style={{
-              width: 350,
-              height: 350,
-            }}
-          />
-        </View>
-
-        <View className="w-[60%]">
+      <View className="flex w-full flex-row items-center justify-between px-5 py-10">
+        <View className="w-full">
           <Card className="px-5 py-6">
             <View className="flex flex-row items-center justify-center">
               <View className="mb-2 flex flex-row items-center justify-center">
@@ -109,7 +98,7 @@ export default function Error() {
               <Text className="my-5 text-center text-lg font-bold">暂无故障记录</Text>
             )}
 
-            <View className="mt-5 flex flex-row items-center justify-center gap-x-16">
+            <View className="mt-5 flex flex-row items-center justify-center gap-x-5">
               <TouchableOpacity
                 className={`flex flex-row items-center gap-x-1 ${currentPage === 0 ? 'opacity-50' : ''}`}
                 onPress={handlePrevPage}

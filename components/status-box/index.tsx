@@ -17,21 +17,6 @@ export const StatusBox = () => {
     <View className="w-[100%] flex-col items-center justify-end">
       <ParamsSettingModal visible={visible} onDismiss={hideModal} />
 
-      <Image
-        placeholder={{ blurhash: 'L3C00000' }}
-        contentFit="contain"
-        style={{ width: imageSize, height: imageSize }}
-        transition={1000}
-        source={require('@/assets/images/p1.png')}
-      />
-      <Image
-        placeholder={{ blurhash: 'L3C00000' }}
-        contentFit="cover"
-        style={{ width: imageSize, height: imageSize, marginBottom: 20 }}
-        transition={1000}
-        source={require('@/assets/images/p2.png')}
-      />
-
       <Button icon="cog" mode="contained" style={{ width: '80%' }} onPress={openSettingModal}>
         参数设置
       </Button>

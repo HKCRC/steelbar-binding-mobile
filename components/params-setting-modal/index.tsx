@@ -209,6 +209,8 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
+          marginLeft: 20,
+          marginRight: 20,
         }}>
         <View className="w-full">
           <View className="mb-4 flex flex-row items-center justify-between">
@@ -311,7 +313,7 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
             </TouchableOpacity>
           </View>
 
-          <View className="mb-2 mt-5 flex flex-row items-center justify-center gap-5">
+          <View className="mb-2 mt-5 flex flex-col items-center justify-center gap-5">
             <View className="flex flex-row items-center justify-center gap-2">
               <Switch
                 value={workParams.ultrasonic_waves}
@@ -353,7 +355,7 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
         style={{
           backgroundColor: 'white',
           borderRadius: 15,
-          width: '40%',
+          width: '80%',
           left: '0%',
           right: '0%',
           marginHorizontal: 'auto',

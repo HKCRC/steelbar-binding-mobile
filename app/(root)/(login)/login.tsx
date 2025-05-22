@@ -7,7 +7,6 @@ import {
   TextInput,
   TouchableOpacity,
   View,
-  Dimensions,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
@@ -25,8 +24,6 @@ export default function Login() {
   const [hasReadGuide, setHasReadGuide] = useState(false);
   const [rememberpsw, setRememberpsw] = useState(true);
   const [showGuideDialog, setShowGuideDialog] = useState(false);
-
-  const { width, height } = Dimensions.get('screen');
   const { canLoginInfo } = useStore((state) => state);
   const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
 
@@ -84,18 +81,7 @@ export default function Login() {
 
   return (
     <View className="flex h-full w-full">
-      <View className="relative w-full">
-        <Image
-          source={require('@/assets/images/bg.jpg')}
-          style={{
-            width: width / 2.5,
-            height,
-            position: 'absolute',
-            right: 0,
-            top: 0,
-          }}
-          contentFit="cover"
-        />
+      <View className="relative h-full w-full">
         <Header />
         <Portal>
           <Modal
@@ -110,7 +96,6 @@ export default function Login() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
-              width: width / 3,
             }}>
             <View className="h-[85%] w-full">
               <View className="mb-2 flex flex-row items-center justify-center">
@@ -132,8 +117,8 @@ export default function Login() {
             </View>
           </Modal>
         </Portal>
-        <View className="mt-20 flex flex-row px-32">
-          <View className="relative flex w-5/12 items-center">
+        <View className="mt-20 flex w-full px-6">
+          <View className="relative flex items-center">
             <View className="w-full">
               <View className="">
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
@@ -164,7 +149,7 @@ export default function Login() {
                     />
                   </View>
                 </KeyboardAvoidingView>
-                <View className="mt-5 flex flex-col items-start justify-center">
+                <View className="mt-5 flex w-full flex-col items-start justify-start">
                   <View className="flex flex-row items-center justify-center">
                     <Checkbox.Android
                       status={rememberpsw ? 'checked' : 'unchecked'}
@@ -175,21 +160,22 @@ export default function Login() {
                     <Text className="text-md -mt-0.5">下次启动时自动进入该账户</Text>
                   </View>
 
-                  <View className="flex flex-row items-center justify-center">
+                  <View className="flex flex-row items-center justify-start">
                     <Checkbox.Android
                       status={hasReadGuide ? 'checked' : 'unchecked'}
                       onPress={() => {
                         setHasReadGuide(!hasReadGuide);
                       }}
                     />
-                    <View className="-mt-0.5 flex flex-row items-center justify-center">
-                      <View className="text-md flex flex-row items-center justify-center">
+                    <View className="-mt-0.5">
+                      <View className="flex flex-row items-center justify-center">
                         <Text>承诺已知悉</Text>
                         <TouchableOpacity onPress={openGuideDialog}>
-                          <Text className=" text-blue-500">《钢筋绑扎机器人用户手册》</Text>
+                          <Text className="ml-1 text-blue-500">《钢筋绑扎机器人用户手册》</Text>
                         </TouchableOpacity>
-                        <Text>的全部内容</Text>
                       </View>
+
+                      <Text>的全部内容</Text>
                     </View>
                   </View>
                 </View>

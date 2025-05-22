@@ -80,8 +80,14 @@ export const ControlExtraModule = () => {
   };
 
   return (
-    <View className="relative flex w-full flex-row items-end justify-end">
-      <View className="-bottom-[10px] flex gap-y-5">
+    <View className="relative flex w-full flex-row items-center justify-between">
+      {robotStatus.currentMode === ROBOT_CURRENT_MODE.AUTO &&
+      robotStatus.currentBindingMode === ROBOT_WORK_MODE.SKIP_BINDING ? (
+        <SelectJumpCount />
+      ) : (
+        <View className="w-2 opacity-0" />
+      )}
+      <View className="flex gap-y-5">
         <Button icon="reload" mode="elevated" onPress={robotReboot}>
           绑扎机重启
         </Button>
@@ -92,13 +98,6 @@ export const ControlExtraModule = () => {
           机器下降
         </Button>
       </View>
-
-      {robotStatus.currentMode === ROBOT_CURRENT_MODE.AUTO &&
-      robotStatus.currentBindingMode === ROBOT_WORK_MODE.SKIP_BINDING ? (
-        <View className="absolute left-0 top-0">
-          <SelectJumpCount />
-        </View>
-      ) : null}
     </View>
   );
 };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Dimensions, Text, View } from 'react-native';
-import { Button, Card, Icon } from 'react-native-paper';
+import { Text, View } from 'react-native';
+import { Card, Icon } from 'react-native-paper';
 
 import { ControlAutoSelectDirection } from '../control-auto-select-direction';
 import { ControlExtraModule } from '../control-extra-module';
@@ -15,9 +15,6 @@ import { sendCmdDispatch } from '@/utils/helper';
 
 export const ControlBar = () => {
   const { robotStatus, workParams, setRobotStatus } = useStore((state) => state);
-  const [showMore, setShowMore] = useState(false);
-
-  const { height } = Dimensions.get('window');
 
   // 点击开始
   const startTyping = () => {
@@ -81,36 +78,9 @@ export const ControlBar = () => {
           {renderControl()}
         </View>
 
-        {height > 700 ? (
-          <View className="flex w-full flex-row justify-end gap-x-5">
-            <ControlExtraModule />
-          </View>
-        ) : (
-          <View className="absolute bottom-0 right-5 flex w-full flex-row justify-end gap-x-5">
-            {showMore ? (
-              <View className="rounded-xl border border-gray-300 bg-white px-5 pb-16 pt-10">
-                <Button
-                  className="absolute right-0 top-1"
-                  mode="text"
-                  icon="chevron-up"
-                  onPress={() => setShowMore(false)}>
-                  <Text className="text-lg font-normal">收起</Text>
-                </Button>
-                <ControlExtraModule />
-              </View>
-            ) : (
-              <Button
-                mode="elevated"
-                icon="dots-horizontal"
-                className="absolute bottom-0 right-0"
-                onPress={() => {
-                  setShowMore(!showMore);
-                }}>
-                <Text>更多功能</Text>
-              </Button>
-            )}
-          </View>
-        )}
+        <View className="mt-20 flex w-full flex-row justify-end gap-x-5">
+          <ControlExtraModule />
+        </View>
       </View>
     </Card>
   );

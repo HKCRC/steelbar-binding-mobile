@@ -10,15 +10,9 @@
     "experiments": {
       "tsconfigPaths": true
     },
+    "orientation": "default",
     "plugins": [
       "expo-router",
-      [
-        "expo-screen-orientation",
-        {
-          "initialOrientation": "LANDSCAPE",
-          "orientation": "landscape"
-        }
-      ],
       [
         "expo-sqlite",
         {
@@ -42,7 +36,6 @@
         }
       ]
     ],
-    "orientation": "landscape",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {

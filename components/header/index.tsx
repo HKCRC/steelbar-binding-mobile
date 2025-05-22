@@ -1,5 +1,5 @@
 import { Image } from 'expo-image';
-import { router, usePathname } from 'expo-router';
+import { router, usePathname, useSegments } from 'expo-router';
 import {
   BatteryEmpty,
   BatteryFull,
@@ -32,7 +32,8 @@ export const Header = () => {
   const [wifiPermission, setWifiPermission] = useState(false);
   const [wifiList, setWifiList] = useState<WifiEntry[]>([]);
   const [wifiPassword, setWifiPassword] = useState('');
-  const pathname = usePathname();
+  const segments = useSegments();
+  const isLoginPage = segments.includes('(login)');
   // 连接WiFi密码对话框是否可见
   const [wifiPasswordDialogVisible, setWifiPasswordDialogVisible] = useState(false);
   const hideWifiPasswordDialog = () => setWifiPasswordDialogVisible(false);
@@ -212,14 +213,17 @@ export const Header = () => {
 
   return (
     <View
-      className="flex w-full flex-row items-center justify-between px-6 pb-3 pt-5"
-      style={{ paddingTop: top + 15, height: 105 }}>
-      <Image
-        source={require('@/assets/hkcrc.png')}
-        style={{ width: 400, height: 42.78 }}
-        contentFit="contain"
-        transition={1000}
-      />
+      className="flex w-full flex-col items-center justify-between px-6 pt-5"
+      style={{ paddingTop: top + 15 }}>
+      <View className="flex w-full flex-row items-center justify-between">
+        <Image
+          source={require('@/assets/hkcrc.png')}
+          style={{ width: 250, height: 26.39 }}
+          contentFit="contain"
+          transition={1000}
+        />
+        {renderBatteryIcon()}
+      </View>
 
       <Portal>
         <Modal
@@ -233,7 +237,8 @@ export const Header = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '30%',
+            marginLeft: 20,
+            marginRight: 20,
           }}>
           <View className="w-full">
             <View className="mb-5 flex flex-row items-center justify-between">
@@ -285,7 +290,7 @@ export const Header = () => {
 
         <Dialog
           visible={wifiPasswordDialogVisible}
-          style={{ width: '40%', left: '0%', right: '0%', marginHorizontal: 'auto' }}
+          style={{ width: '80%', left: '0%', right: '0%', marginHorizontal: 'auto' }}
           onDismiss={() => setWifiPasswordDialogVisible(false)}>
           <Dialog.Title>请输入{currentSelectedWifi.current}的密码</Dialog.Title>
           <Dialog.Content>
@@ -302,28 +307,28 @@ export const Header = () => {
         </Dialog>
       </Portal>
 
-      <View className="flex flex-row items-center gap-8">
-        <TouchableOpacity
-          className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
-          onPress={openWifiSetting}>
-          <WifiHigh size={24} weight="bold" />
-          <Text className="text-sm text-gray-800">
-            {robotStatus.currentConnectWifiSSID ? robotStatus.currentConnectWifiSSID : '连接WiFi'}
-          </Text>
-        </TouchableOpacity>
+      <View className="mb-1 mt-5 flex flex-row items-center gap-5">
+        {!isLoginPage ? (
+          <TouchableOpacity
+            className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
+            onPress={openWifiSetting}>
+            <WifiHigh size={18} weight="bold" />
+            <Text className="text-sm text-gray-800">
+              {robotStatus.currentConnectWifiSSID ? robotStatus.currentConnectWifiSSID : '连接WiFi'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
 
-        {pathname.indexOf('/login') === -1 ? (
+        {!isLoginPage ? (
           <TouchableOpacity
             className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
             onPress={gotoSetting}>
-            <Gear size={24} weight="bold" />
+            <Gear size={18} weight="bold" />
             <Text className="text-sm text-gray-800">设置</Text>
           </TouchableOpacity>
         ) : null}
 
-        {renderBatteryIcon()}
-
-        {pathname.indexOf('/login') === -1 ? (
+        {!isLoginPage ? (
           <Button
             icon={robotStatus.robotDangerStatus ? 'pause' : 'play'}
             mode="contained"
