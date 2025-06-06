@@ -1,5 +1,12 @@
 export const storage_config = {
   LOCAL_STORAGE_USER_INFO: 'userInfo',
+  LOCAL_STORAGE_LANGUAGE: 'language',
+};
+
+export const language_config = {
+  'zh-cn': 'cn',
+  'zh-hk': 'hk',
+  en: 'en',
 };
 
 export enum GlobalConst {

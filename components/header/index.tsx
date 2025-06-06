@@ -1,5 +1,6 @@
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
-import { router, usePathname, useSegments } from 'expo-router';
+import { router, useSegments } from 'expo-router';
 import {
   BatteryEmpty,
   BatteryFull,
@@ -13,6 +14,7 @@ import { PermissionsAndroid, TouchableOpacity, View, Text, FlatList, AppState } 
 import { Button, Dialog, Icon, Modal, Portal, TextInput } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import WifiManager, { WifiEntry } from 'react-native-wifi-reborn';
+import { useTranslation } from 'react-i18next';
 
 import { GlobalActivityIndicatorManager } from '../activity-indicator-global';
 import { GlobalSnackbarManager } from '../snackbar-global';
@@ -25,7 +27,11 @@ import { ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
 import eventBus from '@/utils/eventBus';
 import { delayed, globalGetConnect, sendCmdDispatch } from '@/utils/helper';
 
+// Wi-Fi 密码存储键
+const WIFI_PASSWORDS_STORAGE_KEY = 'wifi_passwords';
+
 export const Header = () => {
+  const { t } = useTranslation();
   const { top } = useSafeAreaInsets();
   const { setRobotStatus, robotStatus } = useStore((state) => state);
   const [wifiChooseListVisible, setWifiChooseListVisible] = useState(false);
@@ -37,6 +43,11 @@ export const Header = () => {
   // 连接WiFi密码对话框是否可见
   const [wifiPasswordDialogVisible, setWifiPasswordDialogVisible] = useState(false);
   const hideWifiPasswordDialog = () => setWifiPasswordDialogVisible(false);
+  // 使用已保存密码对话框是否可见
+  const [savedPasswordDialogVisible, setSavedPasswordDialogVisible] = useState(false);
+  // 保存的Wi-Fi密码
+  const [savedWifiPasswords, setSavedWifiPasswords] = useState<{ [ssid: string]: string }>({});
+  const wifiPasswordsStorage = useAsyncStorage(WIFI_PASSWORDS_STORAGE_KEY);
 
   // 当前选择的WiFi SSID, 用于连接WiFi中间临时存储
   const currentSelectedWifi = useRef<string>('');
@@ -44,12 +55,35 @@ export const Header = () => {
   // 获取当前连接的WiFi SSID 并监听App状态 当App状态变为active时 获取当前连接的WiFi SSID
   useEffect(() => {
     fetchCurrentConnectWifiSSID();
-
+    loadSavedWifiPasswords();
     getWifiPermission();
     const screenListener = AppState.addEventListener('change', fetchCurrentConnectWifiSSID);
 
     return () => screenListener.remove();
   }, []);
+
+  // 加载保存的Wi-Fi密码
+  const loadSavedWifiPasswords = async () => {
+    try {
+      const savedPasswords = await wifiPasswordsStorage.getItem();
+      if (savedPasswords) {
+        setSavedWifiPasswords(JSON.parse(savedPasswords));
+      }
+    } catch (error) {
+      console.error('加载Wi-Fi密码失败', error);
+    }
+  };
+
+  // 保存Wi-Fi密码
+  const saveWifiPassword = async (ssid: string, password: string) => {
+    try {
+      const newPasswords = { ...savedWifiPasswords, [ssid]: password };
+      await wifiPasswordsStorage.setItem(JSON.stringify(newPasswords));
+      setSavedWifiPasswords(newPasswords);
+    } catch (error) {
+      console.error('保存Wi-Fi密码失败', error);
+    }
+  };
 
   // 监听WiFi连接状态, 当WiFi连接状态为false时, 设置当前连接的WiFi SSID为空 ,提示重新连接
   useEffect(() => {
@@ -82,10 +116,10 @@ export const Header = () => {
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
       {
-        title: '位置权限是连接WiFi的必要条件',
-        message: `此应用需要位置权限来扫描WiFi网络。`,
-        buttonNegative: '拒绝',
-        buttonPositive: '允许',
+        title: t('errors.wifiPermission'),
+        message: t('errors.needLocation'),
+        buttonNegative: t('errors.deny'),
+        buttonPositive: t('errors.allow'),
       }
     );
     if (granted === PermissionsAndroid.RESULTS.GRANTED) {
@@ -171,34 +205,63 @@ export const Header = () => {
     });
   };
 
-  // 连接WiFi
-  const connectWifi = async () => {
+  // 处理Wi-Fi选择
+  const handleWifiSelect = (ssid: string) => {
+    currentSelectedWifi.current = ssid;
+
+    // 检查是否有保存的密码
+    if (savedWifiPasswords[ssid]) {
+      setSavedPasswordDialogVisible(true);
+    } else {
+      setWifiPasswordDialogVisible(true);
+    }
+  };
+
+  // 使用保存的密码连接
+  const connectWithSavedPassword = async () => {
+    setSavedPasswordDialogVisible(false);
+    const savedPassword = savedWifiPasswords[currentSelectedWifi.current];
+
+    await connectToWifi(savedPassword);
+  };
+
+  // 使用新密码连接
+  const connectWithNewPassword = async () => {
+    if (currentSelectedWifi.current === '' || wifiPassword.length === 0) {
+      GlobalSnackbarManager.current?.show({
+        content: '密码不能为空 或 未选择WiFi',
+      });
+      return;
+    }
+
+    await connectToWifi(wifiPassword);
+
+    // 保存密码到存储
+    saveWifiPassword(currentSelectedWifi.current, wifiPassword);
+
+    // 清空密码输入框
+    setWifiPassword('');
+    setWifiPasswordDialogVisible(false);
+  };
+
+  // 连接到WiFi的核心逻辑
+  const connectToWifi = async (password: string) => {
     try {
-      if (currentSelectedWifi.current === '' || wifiPassword.length === 0) {
-        GlobalSnackbarManager.current?.show({
-          content: '密码不能为空 或 未选择WiFi',
-        });
-        return;
-      }
-      setWifiPassword('');
-      setWifiPasswordDialogVisible(false);
       setWifiChooseListVisible(false);
       GlobalActivityIndicatorManager.current?.show(
         `正在连接${currentSelectedWifi.current}中...`,
         0
       );
-      await WifiManager.connectToProtectedSSID(
-        currentSelectedWifi.current,
-        wifiPassword,
-        true,
-        false
-      );
-      // Check the result without testing void type for truthiness
+
+      await WifiManager.connectToProtectedSSID(currentSelectedWifi.current, password, true, false);
+
       GlobalSnackbarManager.current?.show({
         content: '连接成功',
       });
+
       // 重新连接socket
       handleConnectToSocketAgain();
+
       setRobotStatus({
         currentConnectWifiSSID: currentSelectedWifi.current,
       });
@@ -244,7 +307,9 @@ export const Header = () => {
             <View className="mb-5 flex flex-row items-center justify-between">
               <View className="flex flex-row items-center justify-center">
                 <Icon source="cog" size={22} />
-                <Text className="mb-1 ml-2 text-2xl font-bold">选择WiFi</Text>
+                <Text className="mb-1 ml-2 text-2xl font-bold">
+                  {t('wifi.selectWifi') as string}
+                </Text>
               </View>
 
               <TouchableOpacity onPress={handleRefreshWifiList}>
@@ -261,18 +326,23 @@ export const Header = () => {
                     <View className="flex flex-row items-center justify-center">
                       <Icon source="wifi" size={20} />
                       <Text className="text-md ml-2 text-gray-800">{item.SSID}</Text>
+                      {savedWifiPasswords[item.SSID] && (
+                        <View style={{ marginLeft: 5 }}>
+                          <Icon source="content-save" size={16} color="#4CAF50" />
+                        </View>
+                      )}
                     </View>
                     {robotStatus.currentConnectWifiSSID === item.SSID ? (
-                      <Text className="text-md text-gray-800">已连接</Text>
+                      <Text className="text-md text-gray-800">
+                        {t('common.connected') as string}
+                      </Text>
                     ) : (
                       <TouchableOpacity
                         className="rounded-full bg-white px-3 py-1"
-                        onPress={() => {
-                          setWifiPassword('');
-                          currentSelectedWifi.current = item.SSID;
-                          setWifiPasswordDialogVisible(true);
-                        }}>
-                        <Text className="text-md text-gray-800">连接</Text>
+                        onPress={() => handleWifiSelect(item.SSID)}>
+                        <Text className="text-md text-gray-800">
+                          {t('common.connect') as string}
+                        </Text>
                       </TouchableOpacity>
                     )}
                   </TouchableOpacity>
@@ -281,28 +351,56 @@ export const Header = () => {
               ListEmptyComponent={
                 <View className="mb-5 flex flex-row items-center justify-center gap-2">
                   <Icon source="wifi-off" size={16} />
-                  <Text className="text-gray-800">暂无可以连接的WiFi</Text>
+                  <Text className="text-gray-800">{t('wifi.noWifi') as string}</Text>
                 </View>
               }
             />
           </View>
         </Modal>
 
+        {/* 使用已保存密码的确认对话框 */}
+        <Dialog
+          visible={savedPasswordDialogVisible}
+          style={{ width: '80%', left: '0%', right: '0%', marginHorizontal: 'auto' }}
+          onDismiss={() => setSavedPasswordDialogVisible(false)}>
+          <Dialog.Title>
+            {t('wifi.useSavedPassword') as string} {currentSelectedWifi.current}?
+          </Dialog.Title>
+          <Dialog.Content>
+            <Text>
+              {t('wifi.useSavedPassword') as string} {currentSelectedWifi.current}?
+            </Text>
+          </Dialog.Content>
+          <Dialog.Actions>
+            <Button
+              onPress={() => {
+                setSavedPasswordDialogVisible(false);
+                setWifiPasswordDialogVisible(true);
+              }}>
+              {t('wifi.useNew') as string}
+            </Button>
+            <Button onPress={connectWithSavedPassword}>{t('wifi.useSaved') as string}</Button>
+          </Dialog.Actions>
+        </Dialog>
+
+        {/* 输入Wi-Fi密码对话框 */}
         <Dialog
           visible={wifiPasswordDialogVisible}
           style={{ width: '80%', left: '0%', right: '0%', marginHorizontal: 'auto' }}
           onDismiss={() => setWifiPasswordDialogVisible(false)}>
-          <Dialog.Title>请输入{currentSelectedWifi.current}的密码</Dialog.Title>
+          <Dialog.Title>
+            {t('wifi.enterPassword') as string} {currentSelectedWifi.current}
+          </Dialog.Title>
           <Dialog.Content>
             <TextInput
-              placeholder="请输入WiFi密码"
+              placeholder={t('wifi.enterPassword')}
               value={wifiPassword}
               onChangeText={setWifiPassword}
             />
           </Dialog.Content>
           <Dialog.Actions>
-            <Button onPress={hideWifiPasswordDialog}>取消</Button>
-            <Button onPress={connectWifi}>连接</Button>
+            <Button onPress={hideWifiPasswordDialog}>{t('common.cancel') as string}</Button>
+            <Button onPress={connectWithNewPassword}>{t('common.connect') as string}</Button>
           </Dialog.Actions>
         </Dialog>
       </Portal>
@@ -314,7 +412,9 @@ export const Header = () => {
             onPress={openWifiSetting}>
             <WifiHigh size={18} weight="bold" />
             <Text className="text-sm text-gray-800">
-              {robotStatus.currentConnectWifiSSID ? robotStatus.currentConnectWifiSSID : '连接WiFi'}
+              {robotStatus.currentConnectWifiSSID
+                ? robotStatus.currentConnectWifiSSID
+                : (t('common.wifi') as string)}
             </Text>
           </TouchableOpacity>
         ) : null}
@@ -324,7 +424,7 @@ export const Header = () => {
             className="flex flex-row items-center gap-2 rounded-full bg-white p-3 px-4"
             onPress={gotoSetting}>
             <Gear size={18} weight="bold" />
-            <Text className="text-sm text-gray-800">设置</Text>
+            <Text className="text-sm text-gray-800">{t('common.settings') as string}</Text>
           </TouchableOpacity>
         ) : null}
 
@@ -334,7 +434,7 @@ export const Header = () => {
             mode="contained"
             buttonColor="red"
             onPress={handleForcePause}>
-            软急停
+            {t('common.softStop') as string}
           </Button>
         ) : null}
       </View>

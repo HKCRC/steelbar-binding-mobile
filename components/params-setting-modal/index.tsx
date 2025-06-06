@@ -1,5 +1,6 @@
 /* eslint-disable no-case-declarations */
 import { useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, TextInput as RNTextInput, TouchableOpacity, View } from 'react-native';
 import { Button, Dialog, Icon, Modal, Portal, Switch, Text, TextInput } from 'react-native-paper';
 
@@ -16,6 +17,7 @@ interface ParamsSettingModalProps {
 
 export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalProps) => {
   const { workParams, setWorkParams, robotStatus } = useStore((state) => state);
+  const { t } = useTranslation();
   const editKey = useRef({
     key: '',
     value: '',
@@ -29,7 +31,7 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
   const sendData = (fClass: string, fData: number) => {
     if (robotStatus.robotDangerStatus) {
       GlobalSnackbarManager.current?.show({
-        content: '机器人处于软急停状态，无法发送命令',
+        content: t('errors.robotDangerStatusTips') as string,
       });
       return;
     }
@@ -39,14 +41,14 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
       socket.writeData(`${GlobalConst.forwardData}:${fClass}:${fData}`);
     } else {
       GlobalSnackbarManager.current?.show({
-        content: '机器人未连接，无法发送命令',
+        content: t('errors.robotUnconnectedTips') as string,
       });
     }
   };
 
   const submitData = () => {
     if (workParams.auto_find_point) {
-      Alert.alert('自动寻点模式下，无法进行参数设置');
+      Alert.alert(t('errors.autoFindPointTips') as string);
       return;
     }
 
@@ -158,7 +160,7 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
   const changeUltrasound = (fValue: boolean) => {
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点开启，无法开启超声波',
+        content: t('errors.autoFindPointTips6') as string,
       });
       return;
     }
@@ -174,7 +176,7 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
   const changeAntiFallLaser = (fValue: boolean) => {
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点开启，无法开启防坠激光',
+        content: t('errors.autoFindPointTips7') as string,
       });
       return;
     }
@@ -216,7 +218,9 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
           <View className="mb-4 flex flex-row items-center justify-between">
             <View className="my-1 flex flex-row items-center gap-2">
               <Icon source="cog" size={22} />
-              <Text className="mb-1 ml-2 text-xl font-bold">参数设置</Text>
+              <Text className="mb-1 ml-2 text-xl font-bold">
+                {t('common.parameterSettings') as string}
+              </Text>
             </View>
             <TouchableOpacity onPress={onDismiss}>
               <Icon source="close" size={22} />
@@ -386,10 +390,10 @@ export const ParamsSettingModal = ({ visible, onDismiss }: ParamsSettingModalPro
             onPress={() => {
               setEditModalVisible(false);
             }}>
-            取消
+            {t('common.cancel') as string}
           </Button>
 
-          <Button onPress={submitData}>确认</Button>
+          <Button onPress={submitData}>{t('common.confirm') as string}</Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>

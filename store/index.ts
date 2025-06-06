@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { ChangeState, DownState, RebootState, workParamsRange } from '@/constants';
+import { ChangeState, DownState, language_config, RebootState, workParamsRange } from '@/constants';
 import { DIRECTION, ROBOT_CURRENT_MODE, ROBOT_WORK_MODE } from '@/types';
 
 interface State {
@@ -58,6 +58,8 @@ interface State {
   }[];
   setDataInspect: (newInfo: Partial<State['data_inspect']>) => void;
   setErrorGroup: (newInfo: { time: string; errorId: number }) => void;
+  language: string;
+  setLanguage: (newLanguage: string) => void;
 }
 
 export const initWorkParams = {
@@ -151,6 +153,8 @@ export const useStore = create<State>((set) => ({
     set((state) => ({
       errorGroup: [newInfo, ...state.errorGroup],
     })),
+  language: language_config['zh-cn'],
+  setLanguage: (newLanguage: string) => set({ language: newLanguage }),
 }));
 
 export default useStore;

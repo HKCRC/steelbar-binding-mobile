@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { Card, Icon } from 'react-native-paper';
 
@@ -15,12 +16,12 @@ import { sendCmdDispatch } from '@/utils/helper';
 
 export const ControlBar = () => {
   const { robotStatus, workParams, setRobotStatus } = useStore((state) => state);
-
+  const { t } = useTranslation();
   // 点击开始
   const startTyping = () => {
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点模式下，无法进行操作',
+        content: t('errors.autoFindPointTips5') as string,
       });
       return;
     }
@@ -38,7 +39,7 @@ export const ControlBar = () => {
           break;
         default:
           GlobalSnackbarManager.current?.show({
-            content: '当前绑扎模式不支持',
+            content: t('errors.currentBindingModeNotSupported') as string,
           });
           break;
       }
@@ -55,7 +56,9 @@ export const ControlBar = () => {
       return (
         <View className="flex h-[180px] w-[150px] flex-row items-center justify-center gap-x-2">
           <Icon source="lock" size={22} />
-          <Text className="text-center text-xl font-normal text-black">锁止模式</Text>
+          <Text className="text-center text-xl font-normal text-black">
+            {t('common.lockMode') as string}
+          </Text>
         </View>
       );
     } else if (robotStatus.currentMode === ROBOT_CURRENT_MODE.MANUAL) {
@@ -71,7 +74,9 @@ export const ControlBar = () => {
         <View className="mb-5 flex flex-col items-center">
           <View className="mb-2 mt-3 flex flex-row items-center justify-center">
             <Icon source="robot-happy-outline" size={22} />
-            <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">机器人操作</Text>
+            <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">
+              {t('common.robotOperation') as string}
+            </Text>
           </View>
           <ControlSegmented />
 

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { View } from 'react-native';
 import { Button } from 'react-native-paper';
 
@@ -13,11 +14,11 @@ import { SocketManage } from '@/utils/socketManage';
 
 export const ControlExtraModule = () => {
   const { robotStatus, workParams, setWorkParams } = useStore((state) => state);
-
+  const { t } = useTranslation();
   const isInLockedMode = () => {
     if (robotStatus.currentMode === ROBOT_CURRENT_MODE.LOCKED) {
       GlobalSnackbarManager.current?.show({
-        content: '锁止模式下，无法进行操作',
+        content: t('errors.lockModeTips') as string,
       });
       return true;
     }
@@ -31,7 +32,7 @@ export const ControlExtraModule = () => {
 
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点模式下，无法进行复位',
+        content: t('errors.autoFindPointTips3') as string,
       });
       return;
     }
@@ -56,7 +57,7 @@ export const ControlExtraModule = () => {
 
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点模式下，无法进行机器人下降',
+        content: t('errors.autoFindPointTips2') as string,
       });
       return;
     }
@@ -70,7 +71,7 @@ export const ControlExtraModule = () => {
 
     if (workParams.auto_find_point) {
       GlobalSnackbarManager.current?.show({
-        content: '自动寻点模式下，无法进行绑扎机重启',
+        content: t('errors.autoFindPointTips') as string,
       });
       return;
     }
@@ -89,13 +90,13 @@ export const ControlExtraModule = () => {
       )}
       <View className="flex gap-y-5">
         <Button icon="reload" mode="elevated" onPress={robotReboot}>
-          绑扎机重启
+          {t('common.tyingRobotRestart') as string}
         </Button>
         <Button icon="restart" mode="elevated" onPress={robotReset}>
-          机器复位
+          {t('common.machineRestart') as string}
         </Button>
         <Button icon="elevator-down" mode="elevated" onPress={robotDown}>
-          机器下降
+          {t('common.machineDown') as string}
         </Button>
       </View>
     </View>

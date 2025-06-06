@@ -8,6 +8,7 @@ import { SocketManage } from './socketManage';
 import { GlobalSnackbarManager } from '@/components/snackbar-global';
 import { Command } from '@/constants/command';
 import { eventBusKey } from '@/constants/event';
+import i18n from '@/i18n/i18n';
 
 export const delayed = (ms: number): Promise<void> => {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -36,23 +37,33 @@ export const globalGetConnect = async () => {
           socket.connectSocket();
         } else {
           GlobalSnackbarManager.current?.show({
-            content: '缺少WiFi IP 或 port',
+            content: i18n.t('wifi.missingIpOrPort'),
           });
         }
       }
     } else {
       GlobalSnackbarManager.current?.show({
-        content: '没有连接到WiFi',
+        content: i18n.t('wifi.noWifiConnected'),
       });
     }
   } catch (error) {
-    console.error('error', error);
     GlobalSnackbarManager.current?.show({
-      content: '获取网络状态失败',
+      content: i18n.t('wifi.networkStatusFailed'),
     });
   }
 };
 
 export const sendCmdDispatch = (cmd: Command) => {
   eventBus.publish(eventBusKey.SendCmdEvent, cmd);
+};
+
+export const debounce = (func: (...args: any[]) => void, delay: number) => {
+  let timeout: NodeJS.Timeout;
+  return function (this: any, ...args: any[]) {
+    clearTimeout(timeout);
+
+    timeout = setTimeout(() => {
+      func.apply(this, args);
+    }, delay);
+  };
 };

@@ -1,5 +1,6 @@
+import { useTranslation } from 'react-i18next';
 import { View, Text } from 'react-native';
-import { Button, Icon, Portal } from 'react-native-paper';
+import { Button, Icon, Portal, TouchableRipple } from 'react-native-paper';
 
 import { Command } from '@/constants/command';
 import useStore from '@/store';
@@ -8,6 +9,7 @@ import { sendCmdDispatch } from '@/utils/helper';
 
 export const DangerousStatus = () => {
   const { setRobotStatus } = useStore((state) => state);
+  const { t } = useTranslation();
 
   const releaseDangerStatus = () => {
     // 切换为手动
@@ -28,7 +30,16 @@ export const DangerousStatus = () => {
           onLongPress={releaseDangerStatus}>
           <View className="flex flex-row items-center justify-center">
             <Icon source="hand-okay" size={24} color="#ffffff" />
-            <Text className="ml-2 text-2xl text-white">解除危险状态</Text>
+            <TouchableRipple rippleColor="rgba(0, 0, 0, .32)">
+              <View className="flex flex-col items-center">
+                <Text className="ml-2 text-2xl text-white">
+                  {t('common.releaseDangerStatus') as string}
+                </Text>
+                <Text className="ml-2 text-sm text-white">
+                  {t('common.longPressReleaseDanger') as string}
+                </Text>
+              </View>
+            </TouchableRipple>
           </View>
         </Button>
       </View>

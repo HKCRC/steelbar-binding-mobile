@@ -5,10 +5,11 @@ import { Button, Card, DataTable, Icon } from 'react-native-paper';
 
 import { useStore } from '@/store';
 import { ConnectDeviceInfo } from '@/utils/connectDeviceInfo';
-
+import { useTranslation } from 'react-i18next';
 export const ErrorData = () => {
   const { height } = Dimensions.get('window');
   const targetHeight = height * 0.45;
+  const { t } = useTranslation();
   const rowCount = height > 600 ? Math.floor(targetHeight / 100) : 1;
 
   const { errorGroup } = useStore((state) => state);
@@ -38,13 +39,15 @@ export const ErrorData = () => {
       <View className="w-full px-5 pb-1 pt-2">
         <View className="mb-2 mt-3  flex flex-row items-center justify-center">
           <Icon source="alert-circle-outline" size={22} />
-          <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">故障监控</Text>
+          <Text className="-top-[1px] ml-2 text-center text-2xl font-bold">
+            {t('malfunction.title') as string}
+          </Text>
         </View>
         <DataTable>
           <DataTable.Header>
-            <DataTable.Title>序号</DataTable.Title>
-            <DataTable.Title>发生时间</DataTable.Title>
-            <DataTable.Title numeric>故障名称</DataTable.Title>
+            <DataTable.Title>{t('malfunction.index') as string}</DataTable.Title>
+            <DataTable.Title>{t('malfunction.time') as string}</DataTable.Title>
+            <DataTable.Title numeric>{t('malfunction.name') as string}</DataTable.Title>
           </DataTable.Header>
 
           {items.length > 0 ? (
@@ -64,7 +67,7 @@ export const ErrorData = () => {
           ) : (
             <DataTable.Row>
               <DataTable.Cell textStyle={{ textAlign: 'center', fontSize: 12 }}>
-                暂无数据
+                {t('malfunction.noData') as string}
               </DataTable.Cell>
             </DataTable.Row>
           )}
@@ -76,7 +79,7 @@ export const ErrorData = () => {
             style={{ right: -10, marginTop: 10 }}
             mode="text"
             onPress={() => openErrorDetailPage()}>
-            查看详情
+            {t('malfunction.viewDetails') as string}
           </Button>
         </View>
       </View>

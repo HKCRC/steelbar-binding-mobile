@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Text, View } from 'react-native';
 import { RadioButton } from 'react-native-paper';
 
@@ -26,6 +27,7 @@ const jumpCountList = [
 export const SelectJumpCount = () => {
   const [checked, setChecked] = useState('1');
   const { setRobotStatus } = useStore((state) => state);
+  const { t } = useTranslation();
 
   const handleChange = (value: string) => {
     setChecked(value);
@@ -36,7 +38,9 @@ export const SelectJumpCount = () => {
 
   return (
     <View className="flex flex-col items-start justify-center gap-y-1.5">
-      <Text className="text-center text-lg font-bold">当前跳扎跳数</Text>
+      <Text className="text-center text-lg font-bold">
+        {t('common.currentJumpCount') as string}
+      </Text>
       <View className="flex flex-col items-center justify-center">
         {jumpCountList.map((item) => (
           <View key={item.value} className="flex flex-row items-center justify-center gap-x-1">

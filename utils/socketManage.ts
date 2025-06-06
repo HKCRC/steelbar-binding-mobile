@@ -133,7 +133,7 @@ export class SocketManage {
     this.stopHeartbeat();
 
     ConnectDeviceInfo.disConnect();
-    eventBus.publish(new WifiEvent(false).eventName, new WifiEvent(false).eventName);
+    eventBus.publish(new WifiEvent(false).eventName, new WifiEvent(false).data);
     GlobalActivityIndicatorManager.current?.show('wifi连接已断开');
   }
 

@@ -1,12 +1,13 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DefaultTheme, PaperProvider } from 'react-native-paper';
 
 import GlobalActivityIndicatorComponent from '@/components/activity-indicator-global';
 import { Bootstrap } from '@/components/bootstrap';
 import GlobalDialogComponent from '@/components/global-dialog';
 import GlobalSnackbarComponent from '@/components/snackbar-global';
+import '@/i18n/i18n'; // 导入 i18n 配置
 
 const theme = {
   ...DefaultTheme,

@@ -1,6 +1,7 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppState, AppStateStatus } from 'react-native';
 
 import { GlobalActivityIndicatorManager } from '../activity-indicator-global';
@@ -20,11 +21,15 @@ import { SocketManage } from '@/utils/socketManage';
 // 这个组件主要做一些初始化功能
 export const Bootstrap = () => {
   const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
-  const { setCanLoginInfo, canLoginInfo, robotStatus, setRobotStatus } = useStore((state) => state);
-
+  const { setCanLoginInfo, canLoginInfo, robotStatus, setRobotStatus, setLanguage } = useStore(
+    (state) => state
+  );
+  const languageStorage = useAsyncStorage(storage_config.LOCAL_STORAGE_LANGUAGE);
+  const { t } = useTranslation();
   useEffect(() => {
     databaseInit();
     checkLogin();
+    setLanguageInit();
     setTimeout(() => {
       globalGetConnect();
     }, 50);
@@ -83,9 +88,14 @@ export const Bootstrap = () => {
     }
   };
 
+  const setLanguageInit = async () => {
+    const language = await languageStorage.getItem();
+    setLanguage(language || 'cn');
+  };
+
   const restartConnect = async () => {
     if (!ConnectDeviceInfo.connectStatus) {
-      GlobalActivityIndicatorManager.current?.show('等待重新连接...', 0);
+      GlobalActivityIndicatorManager.current?.show(t('robot.waitingForReconnection') as string, 0);
 
       await delayed(2000);
 
@@ -98,7 +108,7 @@ export const Bootstrap = () => {
   const sendCmd = (cmd: Command) => {
     if (robotStatus.robotDangerStatus) {
       GlobalSnackbarManager.current?.show({
-        content: '机器人处于软急停状态，无法发送命令',
+        content: t('robot.robotStopped') as string,
       });
       return;
     }
@@ -108,7 +118,7 @@ export const Bootstrap = () => {
       socket.writeData(`${GlobalConst.forwardCmd}${cmd}`);
     } else {
       GlobalSnackbarManager.current?.show({
-        content: '机器人未连接，无法发送命令',
+        content: t('errors.robotUnconnectedTips') as string,
       });
     }
   };

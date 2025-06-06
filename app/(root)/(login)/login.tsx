@@ -1,7 +1,7 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Text,
   TextInput,
@@ -26,25 +26,25 @@ export default function Login() {
   const [showGuideDialog, setShowGuideDialog] = useState(false);
   const { canLoginInfo } = useStore((state) => state);
   const userInfo = useAsyncStorage(storage_config.LOCAL_STORAGE_USER_INFO);
-
+  const { t } = useTranslation();
   const login = async () => {
     if (username === '' || password === '') {
       GlobalSnackbarManager.current?.show({
-        content: '用户名和密码不能为空',
+        content: t('errors.emptyCredentials') as string,
       });
       return;
     }
 
     if (username !== canLoginInfo.name || password !== canLoginInfo.password) {
       GlobalSnackbarManager.current?.show({
-        content: '用户名或密码错误',
+        content: t('errors.invalidCredentials') as string,
       });
       return;
     }
 
     if (!hasReadGuide) {
       GlobalSnackbarManager.current?.show({
-        content: '请先阅读用户手册并知悉该手册',
+        content: t('errors.readManual') as string,
       });
       return;
     }
@@ -65,7 +65,7 @@ export default function Login() {
     }
 
     GlobalSnackbarManager.current?.show({
-      content: '登录成功',
+      content: t('common.loginSuccess') as string,
       action: null,
     });
     router.replace('/(home)');
@@ -101,7 +101,7 @@ export default function Login() {
               <View className="mb-2 flex flex-row items-center justify-center">
                 <Icon source="book-open-outline" size={22} />
                 <Text className="-top-[1px] ml-2 py-8 text-center text-2xl font-bold">
-                  《钢筋绑扎机器人用户手册》
+                  {t('common.guide_book') as string}
                 </Text>
               </View>
               <WebView source={{ uri: 'https://www.baidu.com' }} />
@@ -112,7 +112,7 @@ export default function Login() {
                 icon="check"
                 className="w-full px-3"
                 onPress={closeGuideDialog}>
-                <Text className="text-lg font-bold">我知道了</Text>
+                <Text className="text-lg font-bold">{t('common.iKnow') as string}</Text>
               </Button>
             </View>
           </Modal>
@@ -129,7 +129,7 @@ export default function Login() {
 
                     <TextInput
                       className="rounded-tl-2xl rounded-tr-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
-                      placeholder="请输入用户名"
+                      placeholder={t('common.username') as string}
                       value={username}
                       onChangeText={(text) => setUsername(text)}
                     />
@@ -142,7 +142,7 @@ export default function Login() {
                     </View>
                     <TextInput
                       className="rounded-bl-2xl rounded-br-2xl border-[0.5px] border-gray-500 py-5 pl-[50px]"
-                      placeholder="请输入密码"
+                      placeholder={t('common.password') as string}
                       secureTextEntry
                       value={password}
                       onChangeText={(text) => setPassword(text)}
@@ -157,7 +157,7 @@ export default function Login() {
                         setRememberpsw(!rememberpsw);
                       }}
                     />
-                    <Text className="text-md -mt-0.5">下次启动时自动进入该账户</Text>
+                    <Text className="text-md -mt-0.5">{t('common.autoLogin') as string}</Text>
                   </View>
 
                   <View className="flex flex-row items-center justify-start">
@@ -169,20 +169,22 @@ export default function Login() {
                     />
                     <View className="-mt-0.5">
                       <View className="flex flex-row items-center justify-center">
-                        <Text>承诺已知悉</Text>
+                        <Text>{t('common.promise') as string}</Text>
                         <TouchableOpacity onPress={openGuideDialog}>
-                          <Text className="ml-1 text-blue-500">《钢筋绑扎机器人用户手册》</Text>
+                          <Text className="ml-1 text-blue-500">
+                            {t('common.guide_book') as string}
+                          </Text>
                         </TouchableOpacity>
                       </View>
 
-                      <Text>的全部内容</Text>
+                      <Text>{t('common.promiseContent') as string}</Text>
                     </View>
                   </View>
                 </View>
 
                 <View className="mt-5 flex flex-row items-center justify-center gap-10">
                   <Button mode="contained" icon="login" className="w-full px-3" onPress={login}>
-                    <Text className="text-lg font-bold">登入</Text>
+                    <Text className="text-lg font-bold">{t('common.login') as string}</Text>
                   </Button>
                 </View>
               </View>
